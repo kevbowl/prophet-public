@@ -456,8 +456,8 @@ def generate_static_html():
             return Promise.reject(new Error('API not available in static mode'));
         }};
         
-        // Current week tracking
-        let currentWeek = staticData.currentWeek;
+        // Current week tracking - use existing variable from utils.js
+        currentWeek = staticData.currentWeek;
         
         // Override displayRecommendations to work with static data
         window.displayRecommendations = function(recommendations) {{
