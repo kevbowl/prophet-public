@@ -479,10 +479,25 @@
                 const oddsValue = rec.oddsAtTimeOfBet || 0;
                 const expectedValue = rec.expectedValue || 0;
                 const kellyPercentage = rec.kellyPercentage || 0;
+                const wasCorrect = rec.wasCorrect;
+                const profitLoss = rec.profitLoss || 0;
                 
-                const confidenceStr = `${confidence.toFixed(1)}%`;
+                // Determine outcome status
+                let outcomeStatus = 'PENDING';
+                let outcomeClass = 'pending';
+                if (wasCorrect !== null) {
+                    if (wasCorrect) {
+                        outcomeStatus = 'WIN';
+                        outcomeClass = 'win';
+                    } else {
+                        outcomeStatus = 'LOSS';
+                        outcomeClass = 'loss';
+                    }
+                }
+                
+                const confidenceStr = `${(confidence * 100).toFixed(1)}%`;
                 const expectedValueStr = `${expectedValue.toFixed(3)}`;
-                const kellyStr = `${kellyPercentage.toFixed(1)}%`;
+                const kellyStr = `${(kellyPercentage * 100).toFixed(1)}%`;
                 const wagerStr = formatCurrency(wagerAmount);
                 const sportsbookClass = getSportsbookClass(sportsbook);
                 const gameDetails = `${gameInfo} • ${gameTime}`;
@@ -500,7 +515,7 @@
                                 </div>
                             </div>
                             <div class="card-badges">
-                                <div class="outcome-badge pending">PENDING</div>
+                                <div class="outcome-badge ${outcomeClass}">${outcomeStatus}</div>
                             </div>
                         </div>
                         <div class="card-body">
@@ -586,8 +601,8 @@
             const weekData = staticData.weeks[currentWeek];
             if (weekData) {
                 displayRecommendations(weekData.recommendations);
-                // Update performance data if needed
                 updatePerformanceDisplay(weekData.performance);
+                updateWeeklySummary(weekData);
             }
         };
         
@@ -679,6 +694,57 @@
             document.getElementById('overall-other-bets-wager').textContent = formatCurrency(otherBetsWager);
             document.getElementById('overall-other-bets-pl').textContent = formatCurrency(otherBetsPl);
             document.getElementById('overall-other-bets-win-rate').textContent = formatPercentage(otherBetsWinRate);
+            
+            // Update bankroll
+            const remainingBankroll = 10000 + (performance.totalProfitLoss || 0);
+            const roi = (performance.totalProfitLoss || 0) / 10000;
+            document.getElementById('header-bankroll').textContent = formatCurrency(remainingBankroll);
+            document.getElementById('header-roi').textContent = formatPercentage(roi);
+            document.getElementById('header-performance').textContent = `${formatPercentage(performance.winRate || 0)} (${performance.totalBets || 0}-0)`;
+        }
+        
+        function updateWeeklySummary(weekData) {
+            if (!weekData || !weekData.recommendations) return;
+            
+            const recommendations = weekData.recommendations;
+            const totalBets = recommendations.length;
+            const totalWager = recommendations.reduce((sum, rec) => sum + (rec.recommendedWager || 0), 0);
+            const totalPl = recommendations.reduce((sum, rec) => sum + (rec.profitLoss || 0), 0);
+            const winCount = recommendations.filter(rec => rec.wasCorrect === true).length;
+            const winRate = totalBets > 0 ? winCount / totalBets : 0;
+            const atRisk = recommendations.filter(rec => rec.wasCorrect === null).reduce((sum, rec) => sum + (rec.recommendedWager || 0), 0);
+            
+            const topPicks = recommendations.filter(rec => rec.isTopPick);
+            const topPicksCount = topPicks.length;
+            const topPicksWager = topPicks.reduce((sum, rec) => sum + (rec.recommendedWager || 0), 0);
+            const topPicksPl = topPicks.reduce((sum, rec) => sum + (rec.profitLoss || 0), 0);
+            const topPicksWinCount = topPicks.filter(rec => rec.wasCorrect === true).length;
+            const topPicksWinRate = topPicksCount > 0 ? topPicksWinCount / topPicksCount : 0;
+            const topPicksAtRisk = topPicks.filter(rec => rec.wasCorrect === null).reduce((sum, rec) => sum + (rec.recommendedWager || 0), 0);
+            
+            const otherBets = recommendations.filter(rec => !rec.isTopPick);
+            const otherBetsCount = otherBets.length;
+            const otherBetsWager = otherBets.reduce((sum, rec) => sum + (rec.recommendedWager || 0), 0);
+            const otherBetsPl = otherBets.reduce((sum, rec) => sum + (rec.profitLoss || 0), 0);
+            const otherBetsWinCount = otherBets.filter(rec => rec.wasCorrect === true).length;
+            const otherBetsWinRate = otherBetsCount > 0 ? otherBetsWinCount / otherBetsCount : 0;
+            const otherBetsAtRisk = otherBets.filter(rec => rec.wasCorrect === null).reduce((sum, rec) => sum + (rec.recommendedWager || 0), 0);
+            
+            // Update weekly summary
+            document.getElementById('number-of-bets').textContent = totalBets;
+            document.getElementById('total-wager').textContent = formatCurrency(totalWager);
+            document.getElementById('realized-pl').textContent = `${formatCurrency(totalPl)} (${formatPercentage(winRate)})`;
+            document.getElementById('at-risk').textContent = formatCurrency(atRisk);
+            
+            document.getElementById('top-picks-count').textContent = topPicksCount;
+            document.getElementById('top-picks-wager').textContent = formatCurrency(topPicksWager);
+            document.getElementById('top-picks-win-loss').textContent = `${formatCurrency(topPicksPl)} (${formatPercentage(topPicksWinRate)})`;
+            document.getElementById('top-picks-at-risk').textContent = formatCurrency(topPicksAtRisk);
+            
+            document.getElementById('other-bets-count').textContent = otherBetsCount;
+            document.getElementById('other-bets-wager').textContent = formatCurrency(otherBetsWager);
+            document.getElementById('other-bets-win-loss').textContent = `${formatCurrency(otherBetsPl)} (${formatPercentage(otherBetsWinRate)})`;
+            document.getElementById('other-bets-at-risk').textContent = formatCurrency(otherBetsAtRisk);
         }
         
         function formatPercentage(value) {
@@ -691,6 +757,7 @@
             updateWeekNavigation();
             displayRecommendations(staticData.weeks[currentWeek].recommendations);
             updatePerformanceDisplay(staticData.weeks[currentWeek].performance);
+            updateWeeklySummary(staticData.weeks[currentWeek]);
         });
     </script>
 </body>
