@@ -652,7 +652,6 @@
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', () => {
             // Initialize with static data
-            currentWeek = staticData.currentWeek;
             updateWeekNavigation();
             displayRecommendations(staticData.weeks[currentWeek].recommendations);
             updatePerformanceDisplay(staticData.weeks[currentWeek].performance);
