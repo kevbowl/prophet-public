@@ -564,11 +564,15 @@ def generate_static_html():
             }}
             
             if (prevBtn) {{
-                prevBtn.style.display = currentWeek > 1 ? 'block' : 'none';
+                const hasPrevWeek = currentWeek > 1 && staticData.weeks[currentWeek - 1] && staticData.weeks[currentWeek - 1].recommendations && staticData.weeks[currentWeek - 1].recommendations.length > 0;
+                prevBtn.style.display = hasPrevWeek ? 'block' : 'none';
+                prevBtn.disabled = !hasPrevWeek;
             }}
             
             if (nextBtn) {{
-                nextBtn.style.display = currentWeek < staticData.totalWeeks ? 'block' : 'none';
+                const hasNextWeek = currentWeek < staticData.totalWeeks && staticData.weeks[currentWeek + 1] && staticData.weeks[currentWeek + 1].recommendations && staticData.weeks[currentWeek + 1].recommendations.length > 0;
+                nextBtn.style.display = hasNextWeek ? 'block' : 'none';
+                nextBtn.disabled = !hasNextWeek;
             }}
         }};
         
@@ -615,21 +619,32 @@ def generate_static_html():
         }}
         
         function formatBetDisplay(rec) {{
-            const betType = rec.betType;
+            const gameInfo = rec.gameInfo || 'Unknown Game';
+            const betType = rec.betType; // 0=Moneyline, 1=Spread, 2=Total
             const side = rec.side;
             const line = rec.line;
+            const odds = rec.oddsAtTimeOfBet;
+            
+            // Parse team names from gameInfo
+            const [awayTeam, homeTeam] = gameInfo.split(' @ ');
             
             if (betType === 0) {{
                 // Moneyline
-                return side === 0 ? 'Moneyline' : 'Moneyline';
+                const team = side === 0 ? homeTeam : awayTeam;
+                const oddsStr = odds ? ` (${{odds > 0 ? '+' : ''}}${{odds}})` : '';
+                return `${{team}} to Win${{oddsStr}}`;
             }} else if (betType === 1) {{
                 // Spread
+                const team = side === 0 ? homeTeam : awayTeam;
                 const lineStr = line ? `${{line > 0 ? '+' : ''}}${{line}}` : '';
-                return `Spread ${{lineStr}}`;
+                const oddsStr = odds ? ` (${{odds > 0 ? '+' : ''}}${{odds}})` : '';
+                return `${{team}} ${{lineStr}}${{oddsStr}}`;
             }} else if (betType === 2) {{
                 // Total
-                const overUnder = side === 0 ? 'Over' : 'Under';
-                return `${{overUnder}} ${{line}}`;
+                const overUnder = side === 2 ? 'Over' : 'Under';
+                const totalLine = line ? `${{line}}` : '';
+                const oddsStr = odds ? ` (${{odds > 0 ? '+' : ''}}${{odds}})` : '';
+                return `${{overUnder}} ${{totalLine}} Points${{oddsStr}}`;
             }}
             return 'Unknown Bet';
         }}
@@ -649,13 +664,42 @@ def generate_static_html():
         }}
         
         function updatePerformanceDisplay(performance) {{
-            // Update performance metrics if needed
-            // This is a simplified version - you can expand as needed
+            if (!performance) return;
+            
+            // Update overall performance metrics
+            document.getElementById('total-bets').textContent = performance.totalBets || 0;
+            document.getElementById('overall-total-wager').textContent = formatCurrency(performance.totalWager || 0);
+            document.getElementById('total-pl').textContent = formatCurrency(performance.totalProfitLoss || 0);
+            document.getElementById('win-rate').textContent = formatPercentage(performance.winRate || 0);
+            
+            // Update top picks metrics
+            document.getElementById('overall-top-picks-count').textContent = performance.topPicksCount || 0;
+            document.getElementById('overall-top-picks-wager').textContent = formatCurrency(performance.topPicksWager || 0);
+            document.getElementById('overall-top-picks-pl').textContent = formatCurrency(performance.topPicksProfitLoss || 0);
+            document.getElementById('overall-top-picks-win-rate').textContent = formatPercentage(performance.topPicksWinRate || 0);
+            
+            // Update other bets metrics
+            const otherBetsCount = (performance.totalBets || 0) - (performance.topPicksCount || 0);
+            const otherBetsWager = (performance.totalWager || 0) - (performance.topPicksWager || 0);
+            const otherBetsPl = (performance.totalProfitLoss || 0) - (performance.topPicksProfitLoss || 0);
+            const otherBetsWinRate = otherBetsCount > 0 ? (performance.winRate || 0) : 0; // Simplified
+            
+            document.getElementById('overall-other-bets-count').textContent = otherBetsCount;
+            document.getElementById('overall-other-bets-wager').textContent = formatCurrency(otherBetsWager);
+            document.getElementById('overall-other-bets-pl').textContent = formatCurrency(otherBetsPl);
+            document.getElementById('overall-other-bets-win-rate').textContent = formatPercentage(otherBetsWinRate);
+        }}
+        
+        function formatPercentage(value) {{
+            return `${{Math.round(value * 100)}}%`;
         }}
         
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', () => {{
-            initializeWeekNavigation();
+            // Initialize with static data
+            updateWeekNavigation();
+            displayRecommendations(staticData.weeks[currentWeek].recommendations);
+            updatePerformanceDisplay(staticData.weeks[currentWeek].performance);
         }});
     </script>
 </body>
