@@ -439,7 +439,7 @@ def generate_static_html():
             if (url.includes('/api/recommendations/week/')) {{
                 const week = url.match(/\\/(\\d+)$/)?.[1] || staticData.currentWeek;
                 return Promise.resolve({{
-                    json: () => Promise.resolve(staticData.weeks[week]?.recommendations || [])
+                    json: () => Promise.resolve({{ recommendations: staticData.weeks[week]?.recommendations || [] }})
                 }});
             }}
             if (url.includes('/api/analytics/performance')) {{
