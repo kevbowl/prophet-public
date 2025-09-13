@@ -608,7 +608,7 @@
         
         // Helper functions for formatting
         function formatCurrency(amount) {
-            return `$${amount.toFixed(2)}`;
+            return `$${Math.round(amount)}`;
         }
         
         function formatGameTime(timeStr) {
@@ -675,13 +675,23 @@
             // Update overall performance metrics
             document.getElementById('total-bets').textContent = performance.totalBets || 0;
             document.getElementById('overall-total-wager').textContent = formatCurrency(performance.totalWager || 0);
-            document.getElementById('total-pl').textContent = formatCurrency(performance.totalProfitLoss || 0);
+            
+            const totalPl = performance.totalProfitLoss || 0;
+            const totalPlElement = document.getElementById('total-pl');
+            totalPlElement.textContent = formatCurrency(totalPl);
+            totalPlElement.className = totalPl >= 0 ? 'summary-value positive' : 'summary-value negative';
+            
             document.getElementById('win-rate').textContent = formatPercentage(performance.winRate || 0);
             
             // Update top picks metrics
             document.getElementById('overall-top-picks-count').textContent = performance.topPicksCount || 0;
             document.getElementById('overall-top-picks-wager').textContent = formatCurrency(performance.topPicksWager || 0);
-            document.getElementById('overall-top-picks-pl').textContent = formatCurrency(performance.topPicksProfitLoss || 0);
+            
+            const topPicksPl = performance.topPicksProfitLoss || 0;
+            const topPicksPlElement = document.getElementById('overall-top-picks-pl');
+            topPicksPlElement.textContent = formatCurrency(topPicksPl);
+            topPicksPlElement.className = topPicksPl >= 0 ? 'summary-value positive' : 'summary-value negative';
+            
             document.getElementById('overall-top-picks-win-rate').textContent = formatPercentage(performance.topPicksWinRate || 0);
             
             // Update other bets metrics
@@ -692,7 +702,11 @@
             
             document.getElementById('overall-other-bets-count').textContent = otherBetsCount;
             document.getElementById('overall-other-bets-wager').textContent = formatCurrency(otherBetsWager);
-            document.getElementById('overall-other-bets-pl').textContent = formatCurrency(otherBetsPl);
+            
+            const otherBetsPlElement = document.getElementById('overall-other-bets-pl');
+            otherBetsPlElement.textContent = formatCurrency(otherBetsPl);
+            otherBetsPlElement.className = otherBetsPl >= 0 ? 'summary-value positive' : 'summary-value negative';
+            
             document.getElementById('overall-other-bets-win-rate').textContent = formatPercentage(otherBetsWinRate);
             
             // Update bankroll
@@ -733,17 +747,29 @@
             // Update weekly summary
             document.getElementById('number-of-bets').textContent = totalBets;
             document.getElementById('total-wager').textContent = formatCurrency(totalWager);
-            document.getElementById('realized-pl').textContent = `${formatCurrency(totalPl)} (${formatPercentage(winRate)})`;
+            
+            const realizedPlElement = document.getElementById('realized-pl');
+            realizedPlElement.textContent = `${formatCurrency(totalPl)} (${formatPercentage(winRate)})`;
+            realizedPlElement.className = totalPl >= 0 ? 'summary-value positive' : 'summary-value negative';
+            
             document.getElementById('at-risk').textContent = formatCurrency(atRisk);
             
             document.getElementById('top-picks-count').textContent = topPicksCount;
             document.getElementById('top-picks-wager').textContent = formatCurrency(topPicksWager);
-            document.getElementById('top-picks-win-loss').textContent = `${formatCurrency(topPicksPl)} (${formatPercentage(topPicksWinRate)})`;
+            
+            const topPicksWinLossElement = document.getElementById('top-picks-win-loss');
+            topPicksWinLossElement.textContent = `${formatCurrency(topPicksPl)} (${formatPercentage(topPicksWinRate)})`;
+            topPicksWinLossElement.className = topPicksPl >= 0 ? 'summary-value positive' : 'summary-value negative';
+            
             document.getElementById('top-picks-at-risk').textContent = formatCurrency(topPicksAtRisk);
             
             document.getElementById('other-bets-count').textContent = otherBetsCount;
             document.getElementById('other-bets-wager').textContent = formatCurrency(otherBetsWager);
-            document.getElementById('other-bets-win-loss').textContent = `${formatCurrency(otherBetsPl)} (${formatPercentage(otherBetsWinRate)})`;
+            
+            const otherBetsWinLossElement = document.getElementById('other-bets-win-loss');
+            otherBetsWinLossElement.textContent = `${formatCurrency(otherBetsPl)} (${formatPercentage(otherBetsWinRate)})`;
+            otherBetsWinLossElement.className = otherBetsPl >= 0 ? 'summary-value positive' : 'summary-value negative';
+            
             document.getElementById('other-bets-at-risk').textContent = formatCurrency(otherBetsAtRisk);
         }
         
