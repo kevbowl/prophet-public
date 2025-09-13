@@ -554,12 +554,17 @@
                 weekDates.textContent = `${startStr} - ${endStr}`;
             }
             
+            // Show/hide arrows based on available data
             if (prevBtn) {
-                prevBtn.style.display = currentWeek > 1 ? 'block' : 'none';
+                const hasPrevWeek = currentWeek > 1 && staticData.weeks[currentWeek - 1];
+                prevBtn.style.display = hasPrevWeek ? 'flex' : 'none';
+                prevBtn.disabled = !hasPrevWeek;
             }
             
             if (nextBtn) {
-                nextBtn.style.display = currentWeek < staticData.totalWeeks ? 'block' : 'none';
+                const hasNextWeek = currentWeek < staticData.totalWeeks && staticData.weeks[currentWeek + 1];
+                nextBtn.style.display = hasNextWeek ? 'flex' : 'none';
+                nextBtn.disabled = !hasNextWeek;
             }
         };
         
@@ -646,7 +651,11 @@
         
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', () => {
-            initializeWeekNavigation();
+            // Initialize with static data
+            currentWeek = staticData.currentWeek;
+            updateWeekNavigation();
+            displayRecommendations(staticData.weeks[currentWeek].recommendations);
+            updatePerformanceDisplay(staticData.weeks[currentWeek].performance);
         });
     </script>
 </body>
