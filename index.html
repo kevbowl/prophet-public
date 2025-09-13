@@ -556,13 +556,13 @@
             
             // Show/hide arrows based on available data
             if (prevBtn) {
-                const hasPrevWeek = currentWeek > 1 && staticData.weeks[currentWeek - 1];
+                const hasPrevWeek = currentWeek > 1 && staticData.weeks[currentWeek - 1] && staticData.weeks[currentWeek - 1].recommendations && staticData.weeks[currentWeek - 1].recommendations.length > 0;
                 prevBtn.style.display = hasPrevWeek ? 'flex' : 'none';
                 prevBtn.disabled = !hasPrevWeek;
             }
             
             if (nextBtn) {
-                const hasNextWeek = currentWeek < staticData.totalWeeks && staticData.weeks[currentWeek + 1];
+                const hasNextWeek = currentWeek < staticData.totalWeeks && staticData.weeks[currentWeek + 1] && staticData.weeks[currentWeek + 1].recommendations && staticData.weeks[currentWeek + 1].recommendations.length > 0;
                 nextBtn.style.display = hasNextWeek ? 'flex' : 'none';
                 nextBtn.disabled = !hasNextWeek;
             }
@@ -597,6 +597,10 @@
             return `$${amount.toFixed(2)}`;
         }
         
+        function formatPercentage(value) {
+            return `${Math.round(value * 100)}%`;
+        }
+        
         function formatGameTime(timeStr) {
             if (!timeStr) return '';
             const date = new Date(timeStr);
@@ -611,23 +615,35 @@
         }
         
         function formatBetDisplay(rec) {
-            const betType = rec.betType;
-            const side = rec.side;
+            const gameInfo = rec.gameInfo || 'Unknown Game';
+            const betType = rec.betType; // 0=Moneyline, 1=Spread, 2=Total
+            const side = rec.side; // 0=Home, 1=Away, 2=Over, 3=Under
             const line = rec.line;
+            const odds = rec.oddsAtTimeOfBet;
             
-            if (betType === 0) {
-                // Moneyline
-                return side === 0 ? 'Moneyline' : 'Moneyline';
-            } else if (betType === 1) {
-                // Spread
-                const lineStr = line ? `${line > 0 ? '+' : ''}${line}` : '';
-                return `Spread ${lineStr}`;
-            } else if (betType === 2) {
-                // Total
-                const overUnder = side === 0 ? 'Over' : 'Under';
-                return `${overUnder} ${line}`;
+            const [awayTeam, homeTeam] = gameInfo.split(' @ ');
+
+            switch (betType) {
+                case 0: // Moneyline
+                    const team = side === 0 ? homeTeam : awayTeam;
+                    const oddsStr = odds ? `(${odds > 0 ? '+' : ''}${odds})` : '';
+                    return `${team} to Win ${oddsStr}`;
+                
+                case 1: // Spread
+                    const spreadTeam = side === 0 ? homeTeam : awayTeam;
+                    const spreadLine = line ? (line > 0 ? `+${line}` : line.toString()) : '';
+                    const spreadOdds = odds ? ` (${odds > 0 ? '+' : ''}${odds})` : '';
+                    return `${spreadTeam} ${spreadLine}${spreadOdds}`;
+                
+                case 2: // Total
+                    const overUnder = side === 2 ? 'Over' : 'Under';
+                    const totalLine = line ? line.toString() : '';
+                    const totalOdds = odds ? ` (${odds > 0 ? '+' : ''}${odds})` : '';
+                    return `${overUnder} ${totalLine} Points${totalOdds}`;
+                
+                default:
+                    return `Unknown Bet Type`;
             }
-            return 'Unknown Bet';
         }
         
         function getSportsbookClass(sportsbook) {
@@ -645,8 +661,48 @@
         }
         
         function updatePerformanceDisplay(performance) {
-            // Update performance metrics if needed
-            // This is a simplified version - you can expand as needed
+            if (!performance) return;
+            
+            // Update overall performance metrics
+            document.getElementById('total-bets').textContent = performance.totalBets || 0;
+            document.getElementById('overall-total-wager').textContent = formatCurrency(performance.totalWager || 0);
+            document.getElementById('total-pl').textContent = formatCurrency(performance.totalProfitLoss || 0);
+            document.getElementById('win-rate').textContent = formatPercentage(performance.winRate || 0);
+            
+            // Update top picks metrics
+            document.getElementById('overall-top-picks-count').textContent = performance.topPicksCount || 0;
+            document.getElementById('overall-top-picks-wager').textContent = formatCurrency(performance.topPicksWager || 0);
+            document.getElementById('overall-top-picks-pl').textContent = formatCurrency(performance.topPicksProfitLoss || 0);
+            document.getElementById('overall-top-picks-win-rate').textContent = formatPercentage(performance.topPicksWinRate || 0);
+            
+            // Update other bets metrics
+            document.getElementById('overall-other-bets-count').textContent = (performance.totalBets || 0) - (performance.topPicksCount || 0);
+            document.getElementById('overall-other-bets-wager').textContent = formatCurrency((performance.totalWager || 0) - (performance.topPicksWager || 0));
+            document.getElementById('overall-other-bets-pl').textContent = formatCurrency((performance.totalProfitLoss || 0) - (performance.topPicksProfitLoss || 0));
+            
+            // Calculate other bets win rate
+            const otherBetsCount = (performance.totalBets || 0) - (performance.topPicksCount || 0);
+            const otherBetsWins = Math.round((performance.totalBets || 0) * (performance.winRate || 0)) - Math.round((performance.topPicksCount || 0) * (performance.topPicksWinRate || 0));
+            const otherBetsWinRate = otherBetsCount > 0 ? otherBetsWins / otherBetsCount : 0;
+            document.getElementById('overall-other-bets-win-rate').textContent = formatPercentage(otherBetsWinRate);
+            
+            // Update weekly summary
+            document.getElementById('number-of-bets').textContent = performance.totalBets || 0;
+            document.getElementById('total-wager').textContent = formatCurrency(performance.totalWager || 0);
+            document.getElementById('realized-pl').textContent = `${formatCurrency(performance.totalProfitLoss || 0)} (${formatPercentage(performance.roi || 0)})`;
+            document.getElementById('at-risk').textContent = formatCurrency(0); // No pending bets in static data
+            
+            // Update top picks weekly
+            document.getElementById('top-picks-count').textContent = performance.topPicksCount || 0;
+            document.getElementById('top-picks-wager').textContent = formatCurrency(performance.topPicksWager || 0);
+            document.getElementById('top-picks-win-loss').textContent = `${formatCurrency(performance.topPicksProfitLoss || 0)} (${formatPercentage(performance.topPicksROI || 0)})`;
+            document.getElementById('top-picks-at-risk').textContent = formatCurrency(0);
+            
+            // Update other bets weekly
+            document.getElementById('other-bets-count').textContent = otherBetsCount;
+            document.getElementById('other-bets-wager').textContent = formatCurrency((performance.totalWager || 0) - (performance.topPicksWager || 0));
+            document.getElementById('other-bets-win-loss').textContent = `${formatCurrency((performance.totalProfitLoss || 0) - (performance.topPicksProfitLoss || 0))} (${formatPercentage(otherBetsWinRate)})`;
+            document.getElementById('other-bets-at-risk').textContent = formatCurrency(0);
         }
         
         // Initialize when page loads
