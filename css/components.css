@@ -1,0 +1,256 @@
+.recommendation-card {
+    background: transparent;
+    border: 1px solid #1a1a1a;
+    border-radius: 0;
+    margin-bottom: 32px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.recommendation-card:hover {
+    border-color: #333333;
+}
+
+.card-header {
+    background: transparent;
+    color: white;
+    padding: 32px 32px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: none;
+    position: relative;
+}
+
+.bet-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.bet-text {
+    flex: 1;
+}
+
+.bet-info h3 {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+    font-weight: 300;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+}
+
+.bet-details {
+    font-size: 0.9rem;
+    opacity: 0.5;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+}
+
+.sportsbook-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid #666666;
+    color: #cccccc;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    transition: all 0.2s ease;
+    height: 24px;
+    flex-shrink: 0;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.sportsbook-badge:hover {
+    border-color: #888888;
+    color: #ffffff;
+}
+
+.card-badges {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.top-pick-badge {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.rank-badge {
+    background: transparent;
+    border: 1px solid #333333;
+    border-radius: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 400;
+    font-size: 0.9rem;
+    color: #666666;
+}
+
+.outcome-badge {
+    padding: 6px 10px;
+    border-radius: 0 0 0 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.outcome-badge.win {
+    background: #1a4d1a;
+    color: #4ade80;
+    border: 1px solid #22c55e;
+}
+
+.outcome-badge.loss {
+    background: #4d1a1a;
+    color: #f87171;
+    border: 1px solid #ef4444;
+}
+
+.outcome-badge.pending {
+    background: #1a1a4d;
+    color: #60a5fa;
+    border: 1px solid #3b82f6;
+}
+
+.top-pick-badge {
+    background: #f59e0b;
+    color: #000000;
+    padding: 6px 10px;
+    border-radius: 0 0 4px 0;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid #f59e0b;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.recommendation-card.top-pick {
+    border: 2px solid #fbbf24;
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, rgba(245, 158, 11, 0.05) 100%);
+}
+
+.card-body {
+    padding: 0 32px 32px;
+    background: transparent;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+    margin-bottom: 32px;
+}
+
+.metric {
+    text-align: left;
+    padding: 0;
+    background: transparent;
+    border: none;
+    transition: none;
+}
+
+.metric-label {
+    font-size: 0.8rem;
+    color: #666666;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 400;
+}
+
+.metric-value {
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: #ffffff;
+}
+
+.expected-value {
+    color: #ffffff;
+}
+
+.confidence {
+    color: #ffffff;
+}
+
+.kelly {
+    color: #ffffff;
+}
+
+.wager {
+    color: #ffffff;
+}
+
+.wager .profit {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.wager .loss {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+.reasoning {
+    background: transparent;
+    padding: 0;
+    border-left: 1px solid #333333;
+    padding-left: 16px;
+}
+
+.reasoning h4 {
+    color: #ffffff;
+    margin-bottom: 8px;
+    font-weight: 400;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.7;
+}
+
+.reasoning p {
+    color: #cccccc;
+    line-height: 1.6;
+    font-size: 0.9rem;
+    font-weight: 300;
+}
+
+@media (max-width: 768px) {
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        text-align: left;
+        gap: 16px;
+        padding: 24px 24px 0;
+    }
+    
+    .card-body {
+        padding: 0 24px 24px;
+    }
+}

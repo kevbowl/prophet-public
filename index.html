@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prophet - AI-Powered NFL Betting Recommendations</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="shortcut icon" href="favicon.ico">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/performance.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <div class="container">
+        <div class="top-header">
+            <div class="week-info">
+                <div class="week-navigation">
+                    <button class="week-nav-btn" id="prevWeekBtn" onclick="changeWeek(-1)">‹</button>
+                    <div class="week-display">
+                        <h3 id="weekTitle">Week 2 of 18</h3>
+                        <div id="weekDates">Jan 01-07, 2026</div>
+                    </div>
+                    <button class="week-nav-btn" id="nextWeekBtn" onclick="changeWeek(1)">›</button>
+                </div>
+            </div>
+            <div class="bankroll-info">
+                <h3>Remaining Bankroll</h3>
+                <div class="bankroll-amount-container">
+                    <div class="bankroll-amount" id="header-bankroll">$10,000</div>
+                    <div class="bankroll-roi" id="header-roi">0.0%</div>
+                </div>
+                <div class="bankroll-performance" id="header-performance">0% (0-0)</div>
+            </div>
+        </div>
+
+        <div class="header">
+            <div class="logo-container">
+                <div class="logo-main">Prophet</div>
+            </div>
+            <p>AI-Powered Football Betting Recommendations</p>
+        </div>
+
+        <div class="recommendations">
+            <!-- Performance Metrics Section -->
+            <div id="performance-container" style="display: block;">
+                <div class="performance-card">
+                    <h3>Overall Performance</h3>
+                    <table class="summary-table">
+                        <tr>
+                            <td class="summary-label">Completed Bets:</td>
+                            <td class="summary-value" id="total-bets">0</td>
+                            <td class="summary-label">Total Wager:</td>
+                            <td class="summary-value" id="overall-total-wager">$0</td>
+                            <td class="summary-label">Realized P&L:</td>
+                            <td class="summary-value" id="total-pl">$0</td>
+                            <td class="summary-label">Win Rate:</td>
+                            <td class="summary-value" id="win-rate">0%</td>
+                        </tr>
+                        <tr class="top-picks-row">
+                            <td class="top-picks-badge-cell"><div class="top-picks-badge-small indented">TOP PICKS</div></td>                                                                                           
+                            <td class="summary-value" id="overall-top-picks-count">0</td>
+                            <td class="summary-label">Wager:</td>
+                            <td class="summary-value" id="overall-top-picks-wager">$0</td>
+                            <td class="summary-label">Realized P&L:</td>
+                            <td class="summary-value" id="overall-top-picks-pl">$0</td>
+                            <td class="summary-label">Win Rate:</td>
+                            <td class="summary-value" id="overall-top-picks-win-rate">0%</td>
+                        </tr>
+                        <tr class="other-bets-row">
+                            <td class="other-bets-badge-cell"><div class="other-bets-badge-small indented">OTHER BETS</div></td>                                                                                        
+                            <td class="summary-value" id="overall-other-bets-count">0</td>
+                            <td class="summary-label">Wager:</td>
+                            <td class="summary-value" id="overall-other-bets-wager">$0</td>
+                            <td class="summary-label">Realized P&L:</td>
+                            <td class="summary-value" id="overall-other-bets-pl">$0</td>
+                            <td class="summary-label">Win Rate:</td>
+                            <td class="summary-value" id="overall-other-bets-win-rate">0%</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Weekly Summary Section -->
+            <div id="weekly-container" style="display: block;">
+                <div class="summary-card">
+                    <h3 id="weekly-summary-title">Week 2 Summary</h3>
+                    <table class="summary-table">
+                        <tr>
+                            <td class="summary-label">Total Bets:</td>
+                            <td class="summary-value" id="number-of-bets">0</td>
+                            <td class="summary-label">Total Wager:</td>
+                            <td class="summary-value" id="total-wager">$0</td>
+                            <td class="summary-label">Realized P&L:</td>
+                            <td class="summary-value" id="realized-pl">$0 (0%)</td>
+                            <td class="summary-label">At Risk:</td>
+                            <td class="summary-value" id="at-risk">$0</td>
+                        </tr>
+                        <tr class="top-picks-row">
+                            <td class="top-picks-badge-cell">
+                                <div class="top-picks-badge-small indented">TOP PICKS</div>
+                            </td>
+                            <td class="summary-value" id="top-picks-count">0</td>
+                            <td class="summary-label">Wager:</td>
+                            <td class="summary-value" id="top-picks-wager">$0</td>
+                            <td class="summary-label">Realized P&L:</td>
+                            <td class="summary-value" id="top-picks-win-loss">$0 (0%)</td>
+                            <td class="summary-label">At Risk:</td>
+                            <td class="summary-value" id="top-picks-at-risk">$0</td>
+                        </tr>
+                        <tr class="other-bets-row">
+                            <td class="other-bets-badge-cell">
+                                <div class="other-bets-badge-small indented">OTHER BETS</div>
+                            </td>
+                            <td class="summary-value" id="other-bets-count">0</td>
+                            <td class="summary-label">Wager:</td>
+                            <td class="summary-value" id="other-bets-wager">$0</td>
+                            <td class="summary-label">Realized P&L:</td>
+                            <td class="summary-value" id="other-bets-win-loss">$0 (0%)</td>
+                            <td class="summary-label">At Risk:</td>
+                            <td class="summary-value" id="other-bets-at-risk">$0</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="recommendations-container">
+                
+        <div class="recommendation-card top-pick">
+            <div class="top-pick-badge">TOP PICK</div>
+            <div class="card-header">
+                <div class="bet-info">
+                    <div class="bet-text">
+                        <h3>Cardinals -6.5 (-112)<span class="sportsbook-badge betrivers">BetRivers</span></h3>
+                        <div class="bet-details">Panthers @ Cardinals • Sep 15, 04:05 AM</div>
+                    </div>
+                </div>
+                <div class="card-badges">
+                    <div class="outcome-badge pending">PENDING</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="metric-label">Expected Value</div>
+                        <div class="metric-value expected-value">0.091</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Confidence</div>
+                        <div class="metric-value confidence">0.9%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Kelly Criterion</div>
+                        <div class="metric-value kelly">0.1%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">BET</div>
+                        <div class="metric-value wager">$493</div>
+                    </div>
+                </div>
+                <div class="reasoning">
+                    <div class="reasoning-label">Reasoning:</div>
+                    <div class="reasoning-text">The Cardinals are strong favorites at home (-6.5) against the Panthers.  The Cardinals won their Week 1 game, while the Panthers lost. The Panthers have a significant travel distance (1788 km). The Cardinals have a better defensive ranking (9 vs 24). While the Panthers have more head-to-head wins in the last 10 years (5-1), the Cardinals' home-field advantage and the Panthers' travel disadvantage suggest a strong likelihood of covering the spread. The market efficiency is relatively high (0.9302), indicating less value than initially expected.  The injuries to both teams are a factor, but not enough to sway the pick. | Based on comprehensive contextual analysis including injuries, team dynamics, and situational factors | Additional: Top Pick, Spread Value</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="recommendation-card top-pick">
+            <div class="top-pick-badge">TOP PICK</div>
+            <div class="card-header">
+                <div class="bet-info">
+                    <div class="bet-text">
+                        <h3>Raiders to Win (+160)<span class="sportsbook-badge ">BetOnline</span></h3>
+                        <div class="bet-details">Chargers @ Raiders • Sep 16, 10:00 AM</div>
+                    </div>
+                </div>
+                <div class="card-badges">
+                    <div class="outcome-badge pending">PENDING</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="metric-label">Expected Value</div>
+                        <div class="metric-value expected-value">0.075</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Confidence</div>
+                        <div class="metric-value confidence">0.8%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Kelly Criterion</div>
+                        <div class="metric-value kelly">0.0%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">BET</div>
+                        <div class="metric-value wager">$242</div>
+                    </div>
+                </div>
+                <div class="reasoning">
+                    <div class="reasoning-label">Reasoning:</div>
+                    <div class="reasoning-text">The Chargers are favored (-185 moneyline at DraftKings), but the Raiders are at home and have a relatively short travel distance for the Chargers (232 km). Both teams are 1-0, but the Raiders' strong offensive performance in Week 1 (418 total yards) and the Chargers' relatively weaker defensive ranking (22 vs 12) suggest a potential value bet on the Raiders moneyline. The head-to-head record is even (10-10) over the last 10 years. The market efficiency is moderate (0.7692), suggesting some value, but the relatively low confidence makes this a risky bet. | Based on comprehensive contextual analysis including injuries, team dynamics, and situational factors | Additional: Top Pick, Moneyline Simplicity</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="recommendation-card ">
+            
+            <div class="card-header">
+                <div class="bet-info">
+                    <div class="bet-text">
+                        <h3>Dolphins -2.5 (-105)<span class="sportsbook-badge betmgm">BetMGM</span></h3>
+                        <div class="bet-details">Patriots @ Dolphins • Sep 15, 01:00 AM</div>
+                    </div>
+                </div>
+                <div class="card-badges">
+                    <div class="outcome-badge pending">PENDING</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="metric-label">Expected Value</div>
+                        <div class="metric-value expected-value">0.056</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Confidence</div>
+                        <div class="metric-value confidence">0.8%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Kelly Criterion</div>
+                        <div class="metric-value kelly">0.0%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">BET</div>
+                        <div class="metric-value wager">$420</div>
+                    </div>
+                </div>
+                <div class="reasoning">
+                    <div class="reasoning-label">Reasoning:</div>
+                    <div class="reasoning-text">The Dolphins are favored at home (-2.5) against the Patriots.  While both teams are 0-1, the Dolphins have a significant head-to-head advantage (12-8 over the last 10 years). The Patriots have a long travel distance (1232 km). Although the Dolphins had a poor offensive showing in Week 1, their home advantage and the Patriots' travel could offset this.  However, the numerous questionable injuries to key Dolphins players (Waddle, Waller, Davis, Bonner, Jones) and the Patriots' potential for a bounce-back game reduce my confidence. The market efficiency is high (0.9756), suggesting less value. | Based on comprehensive contextual analysis including injuries, team dynamics, and situational factors | Additional: Spread Value</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="recommendation-card ">
+            
+            <div class="card-header">
+                <div class="bet-info">
+                    <div class="bet-text">
+                        <h3>Vikings -3.5 (+108)<span class="sportsbook-badge ">LowVig</span></h3>
+                        <div class="bet-details">Falcons @ Vikings • Sep 15, 08:20 AM</div>
+                    </div>
+                </div>
+                <div class="card-badges">
+                    <div class="outcome-badge pending">PENDING</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="metric-label">Expected Value</div>
+                        <div class="metric-value expected-value">0.055</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Confidence</div>
+                        <div class="metric-value confidence">0.7%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Kelly Criterion</div>
+                        <div class="metric-value kelly">0.0%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">BET</div>
+                        <div class="metric-value wager">$358</div>
+                    </div>
+                </div>
+                <div class="reasoning">
+                    <div class="reasoning-label">Reasoning:</div>
+                    <div class="reasoning-text">The Vikings are favored at home against the Falcons, who are coming off a loss and have a significant travel distance (906.9 km). While the Falcons have a higher overall ranking (6 vs 20), the Vikings' 1-0 record and home-field advantage, coupled with the Falcons' 0-1 record and travel fatigue, suggest a potential value bet on the Vikings spread.  The Vikings have a slight edge in head-to-head wins (5-1) over the last 10 years.  However, the numerous questionable injuries to key Vikings players (Kelly, Darrisaw, Okudah, Rodgers, Scott, Smith, Van Ginkel, Oliver) significantly reduce my confidence. The market efficiency for this spread is high (0.9756), suggesting a lack of significant value.  I'm hesitant to bet this line at 108 due to the injury concerns. | Based on comprehensive contextual analysis including injuries, team dynamics, and situational factors | Additional: Spread Value</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="recommendation-card ">
+            
+            <div class="card-header">
+                <div class="bet-info">
+                    <div class="bet-text">
+                        <h3>Saints to Win (+149)<span class="sportsbook-badge ">LowVig</span></h3>
+                        <div class="bet-details">49ers @ Saints • Sep 15, 01:00 AM</div>
+                    </div>
+                </div>
+                <div class="card-badges">
+                    <div class="outcome-badge pending">PENDING</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="metric-label">Expected Value</div>
+                        <div class="metric-value expected-value">0.048</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Confidence</div>
+                        <div class="metric-value confidence">0.7%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Kelly Criterion</div>
+                        <div class="metric-value kelly">0.0%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">BET</div>
+                        <div class="metric-value wager">$280</div>
+                    </div>
+                </div>
+                <div class="reasoning">
+                    <div class="reasoning-label">Reasoning:</div>
+                    <div class="reasoning-text">The 49ers are heavily favored (-170 moneyline at DraftKings), but the Saints are at home and the 49ers have a long travel distance (1895 km) and a potentially significant injury to their starting QB (Purdy - Doubtful).  While the 49ers have a better record (1-0) and defensive ranking (5 vs 13), the Saints' home-field advantage and the uncertainty surrounding the 49ers' quarterback situation present a potential upset opportunity.  The head-to-head record is even (2-2) over the last 10 years.  The market efficiency for the Saints moneyline is relatively high (0.8032), indicating less value than initially expected. The injury to Purdy significantly impacts the 49ers' chances, but the uncertainty makes this a risky bet. | Based on comprehensive contextual analysis including injuries, team dynamics, and situational factors | Additional: Moneyline Simplicity</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="recommendation-card ">
+            
+            <div class="card-header">
+                <div class="bet-info">
+                    <div class="bet-text">
+                        <h3>Chiefs to Win (+105)<span class="sportsbook-badge draftkings">DraftKings</span></h3>
+                        <div class="bet-details">Eagles @ Chiefs • Sep 15, 04:25 AM</div>
+                    </div>
+                </div>
+                <div class="card-badges">
+                    <div class="outcome-badge pending">PENDING</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="metric-label">Expected Value</div>
+                        <div class="metric-value expected-value">0.020</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Confidence</div>
+                        <div class="metric-value confidence">0.6%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Kelly Criterion</div>
+                        <div class="metric-value kelly">0.0%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">BET</div>
+                        <div class="metric-value wager">$166</div>
+                    </div>
+                </div>
+                <div class="reasoning">
+                    <div class="reasoning-label">Reasoning:</div>
+                    <div class="reasoning-text">ALGORITHM: Modeled win probability: 49.7%; Efficient market conditions (efficiency: 173.0%); Dome environment - consistent playing conditions; Moneyline bet - pure win/loss outcome | Based on quantitative analysis of market efficiency, weather, and historical data | Additional: Moneyline Simplicity</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="recommendation-card ">
+            
+            <div class="card-header">
+                <div class="bet-info">
+                    <div class="bet-text">
+                        <h3>Colts to Win (+110)<span class="sportsbook-badge draftkings">DraftKings</span></h3>
+                        <div class="bet-details">Broncos @ Colts • Sep 15, 04:05 AM</div>
+                    </div>
+                </div>
+                <div class="card-badges">
+                    <div class="outcome-badge pending">PENDING</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="metric-label">Expected Value</div>
+                        <div class="metric-value expected-value">0.010</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Confidence</div>
+                        <div class="metric-value confidence">0.7%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Kelly Criterion</div>
+                        <div class="metric-value kelly">0.0%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">BET</div>
+                        <div class="metric-value wager">$79</div>
+                    </div>
+                </div>
+                <div class="reasoning">
+                    <div class="reasoning-label">Reasoning:</div>
+                    <div class="reasoning-text">ALGORITHM: Modeled win probability: 48.1%; Efficient market conditions (efficiency: 204.5%); Dome environment - consistent playing conditions; Moneyline bet - pure win/loss outcome | Based on quantitative analysis of market efficiency, weather, and historical data | Additional: Moneyline Simplicity</div>
+                </div>
+            </div>
+        </div>
+        
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/utils.js?v=2"></script>
+    <script src="js/navigation.js?v=2"></script>
+    <script src="js/performance.js?v=2"></script>
+    
+    <!-- Static Data -->
+    <script>
+        // Static data for all weeks
+        const staticData = {
+            currentWeek: 2,
+            totalWeeks: 18,
+            weeks: {"1": {"weekInfo": {"currentWeek": 1, "totalWeeks": 18, "seasonYear": 2025, "weekStartDate": "2025-09-04T00:00:00", "weekEndDate": "2025-09-10T00:00:00"}, "recommendations": [{"id": 48, "gameId": "7dc3787e-9059-495d-bfa0-25115051d316", "betType": 0, "side": 0, "line": null, "confidence": 0.49248987284815854, "recommendationType": 0, "expectedValue": 0.050063949330148017, "kellyPercentage": 0.050063949330148017, "recommendedWager": 500.6394933014802, "reasoning": "Modeled win probability: 52.5%; Efficient market conditions (efficiency: 127.4%); Dome environment - consistent playing conditions; Moneyline bet - pure win/loss outcome; Moderate line value (2.5%)", "wasCorrect": false, "actualOutcome": null, "profitLoss": -500.6394933014802, "oddsAtTimeOfBet": 100, "closingOdds": null, "outcomeRecordedAtUtc": "2025-09-08T10:22:20.399021", "sportsbook": "DraftKings", "isTopPick": true, "isFromGemini": false, "keyFactors": "", "weatherImpact": 0, "lineValue": 0.025031974665074008, "marketEfficiency": 1.2744972810727764, "createdAtUtc": "2025-09-08T10:01:25.942692", "updatedAtUtc": "2025-09-08T10:01:25.942692", "gameInfo": "Buccaneers @ Falcons", "gameDate": null, "gameTime": "2025-09-08T01:00:00", "tvNetwork": "FOX", "broadcastType": "National", "homeScore": 20, "awayScore": 23}, {"id": 61, "gameId": "dec3334b-1a95-4c8c-b681-51094d685d7f", "betType": 0, "side": 0, "line": null, "confidence": 0.6505377619867542, "recommendationType": 0, "expectedValue": 0.04462706323665799, "kellyPercentage": 0.04375202278103725, "recommendedWager": 406.37569330364056, "reasoning": "Modeled win probability: 51.7%; Efficient market conditions (efficiency: 184.8%); Outdoor venue - weather-dependent conditions; Weather impact: Significant temperature, wind impact expected; Moneyline bet - pure win/loss outcome; Moderate line value (2.2%)", "wasCorrect": false, "actualOutcome": null, "profitLoss": -406.37569330364056, "oddsAtTimeOfBet": 102, "closingOdds": null, "outcomeRecordedAtUtc": "2025-09-09T16:15:34.112513", "sportsbook": "DraftKings", "isTopPick": true, "isFromGemini": false, "keyFactors": "Weather", "weatherImpact": 0.06, "lineValue": 0.022092605562701984, "marketEfficiency": 1.8480893043605313, "createdAtUtc": "2025-09-08T15:43:58.386576", "updatedAtUtc": "2025-09-09T09:04:29.85362", "gameInfo": "Vikings @ Bears", "gameDate": null, "gameTime": "2025-09-09T08:15:00", "tvNetwork": "ABC", "broadcastType": "National", "homeScore": 24, "awayScore": 27}, {"id": 44, "gameId": "19d4c199-ea76-4e34-979a-73b67e1f15e5", "betType": 0, "side": 0, "line": null, "confidence": 0.5642736375780429, "recommendationType": 0, "expectedValue": 0.0330190863473544, "kellyPercentage": 0.03632099498208984, "recommendedWager": 363.20994982089843, "reasoning": "Modeled win probability: 54.1%; Efficient market conditions (efficiency: 160.6%); Dome environment - consistent playing conditions; Moneyline bet - pure win/loss outcome; Strong line value detected (6.9%)", "wasCorrect": true, "actualOutcome": null, "profitLoss": 330.190863473544, "oddsAtTimeOfBet": -110, "closingOdds": null, "outcomeRecordedAtUtc": "2025-09-08T10:22:20.398566", "sportsbook": "BetMGM", "isTopPick": true, "isFromGemini": false, "keyFactors": "", "weatherImpact": 0, "lineValue": 0.017295711896233246, "marketEfficiency": 1.605977902003438, "createdAtUtc": "2025-09-08T10:01:25.864955", "updatedAtUtc": "2025-09-08T10:01:25.864955", "gameInfo": "Dolphins @ Colts", "gameDate": null, "gameTime": "2025-09-08T01:00:00", "tvNetwork": "CBS", "broadcastType": "National", "homeScore": 33, "awayScore": 8}, {"id": 58, "gameId": "f63f85bc-cb1c-4348-98f4-10bf7596a083", "betType": 1, "side": 0, "line": 1.5, "confidence": 0.6792591265484925, "recommendationType": 0, "expectedValue": 0.010369958566813553, "kellyPercentage": 0.010577357738149825, "recommendedWager": 105.77357738149826, "reasoning": "Modeled win probability: 51.0%; Efficient market conditions (efficiency: 218.1%); Outdoor venue - weather-dependent conditions; Weather impact: Significant temperature impact expected; Spread bet - 1.5 point margin required; Moderate line value (3.4%)", "wasCorrect": false, "actualOutcome": null, "profitLoss": -105.77357738149826, "oddsAtTimeOfBet": -102, "closingOdds": null, "outcomeRecordedAtUtc": "2025-09-08T10:22:20.399367", "sportsbook": "FanDuel", "isTopPick": false, "isFromGemini": false, "keyFactors": "", "weatherImpact": 0.03333333333333333, "lineValue": 0.005236315711955375, "marketEfficiency": 2.181481617034271, "createdAtUtc": "2025-09-08T10:01:25.98189", "updatedAtUtc": "2025-09-08T10:01:25.98189", "gameInfo": "49ers @ Seahawks", "gameDate": null, "gameTime": "2025-09-08T04:05:00", "tvNetwork": "FOX", "broadcastType": "National", "homeScore": 13, "awayScore": 17}, {"id": 53, "gameId": "7dc3787e-9059-495d-bfa0-25115051d316", "betType": 2, "side": 2, "line": 47.5, "confidence": 0.40137981561540664, "recommendationType": 0, "expectedValue": 0.006418759768103133, "kellyPercentage": 0.006739697756508289, "recommendedWager": 67.39697756508289, "reasoning": "Modeled win probability: 51.5%; Efficient market conditions (efficiency: 127.4%); Dome environment - consistent playing conditions; Total bet - 47.5 point threshold", "wasCorrect": false, "actualOutcome": null, "profitLoss": -67.39697756508289, "oddsAtTimeOfBet": -105, "closingOdds": null, "outcomeRecordedAtUtc": "2025-09-08T10:22:20.399308", "sportsbook": "Bovada", "isTopPick": false, "isFromGemini": false, "keyFactors": "", "weatherImpact": 0, "lineValue": 0.0032876574421991656, "marketEfficiency": 1.2744972810727764, "createdAtUtc": "2025-09-08T10:01:25.951771", "updatedAtUtc": "2025-09-08T10:01:25.951771", "gameInfo": "Buccaneers @ Falcons", "gameDate": null, "gameTime": "2025-09-08T01:00:00", "tvNetwork": "FOX", "broadcastType": "National", "homeScore": 20, "awayScore": 23}, {"id": 47, "gameId": "3ef211ed-b476-4768-a9c4-b44ff31ce453", "betType": 0, "side": 0, "line": null, "confidence": 0.6482697699141536, "recommendationType": 0, "expectedValue": 0.005674596658680309, "kellyPercentage": 0.00680951599041637, "recommendedWager": 68.0951599041637, "reasoning": "Modeled win probability: 54.9%; Efficient market conditions (efficiency: 205.8%); Dome environment - consistent playing conditions; Moneyline bet - pure win/loss outcome; Strong line value detected (6.5%)", "wasCorrect": true, "actualOutcome": null, "profitLoss": 56.74596658680308, "oddsAtTimeOfBet": -120, "closingOdds": null, "outcomeRecordedAtUtc": "2025-09-08T10:22:20.399021", "sportsbook": "BetMGM", "isTopPick": false, "isFromGemini": false, "keyFactors": "", "weatherImpact": 0, "lineValue": 0.0030952345410983906, "marketEfficiency": 2.058335548661785, "createdAtUtc": "2025-09-08T10:01:25.890313", "updatedAtUtc": "2025-09-08T10:01:25.890313", "gameInfo": "Lions @ Packers", "gameDate": null, "gameTime": "2025-09-08T04:25:00", "tvNetwork": "CBS", "broadcastType": "National", "homeScore": 27, "awayScore": 13}], "performance": {"totalBets": 6, "totalWager": 1511.4908512767643, "winRate": 0.3333333333333333, "totalProfitLoss": -693.2489114913548, "averageBet": 251.91514187946072, "roi": -0.45865240329160034, "topPicksCount": 3, "topPicksWager": 1270.2251364260192, "topPicksProfitLoss": -576.8243231315766, "topPicksROI": -0.4541118787450261, "topPicksWinRate": 0.3333333333333333, "betTypeBreakdown": {"Moneyline": {"count": 4, "winRate": 0.5, "profitLoss": -520.0783565447737, "averageWager": 334.5800740825457}, "Total": {"count": 1, "winRate": 0, "profitLoss": -67.39697756508289, "averageWager": 67.39697756508289}, "Spread": {"count": 1, "winRate": 0, "profitLoss": -105.77357738149826, "averageWager": 105.77357738149826}}, "performanceByWeek": {"Week 1": {"count": 6, "winRate": 0.3333333333333333, "profitLoss": -693.2489114913548, "totalWagered": 1511.4908512767643}}}, "games": [{"id": "0b589763-01e7-4c12-9ffe-d60cb5aed9cd", "espnId": "401772510", "league": 1, "season": 2025, "week": 1, "homeTeam": "Eagles", "awayTeam": "Cowboys", "homeTeamId": "21", "awayTeamId": "6", "gameDateUtc": "2025-09-05T08:20:00", "status": 0, "homeScore": 24, "awayScore": 20, "venue": "Lincoln Financial Field", "city": "Philadelphia", "state": "Pennsylvania", "country": "United States", "latitude": 39.9009099, "longitude": -75.1674892, "weatherDescription": "Partly cloudy", "temperature": 14.1, "humidity": 79, "windSpeed": 3.6, "windDirection": "233", "precipitationProbability": 2, "weatherUpdatedAtUtc": "2025-09-12T04:44:05.485678", "tvNetwork": "NBC", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-07T12:54:01.28705", "updatedAtUtc": "2025-09-12T04:44:06.514791", "odds": [], "recommendations": []}, {"id": "c26e716f-50ec-44c3-b2dd-4912d9692308", "espnId": "401772714", "league": 1, "season": 2025, "week": 1, "homeTeam": "Chargers", "awayTeam": "Chiefs", "homeTeamId": "24", "awayTeamId": "12", "gameDateUtc": "2025-09-06T08:00:00", "status": 0, "homeScore": 27, "awayScore": 21, "venue": "Corinthians Arena", "city": "", "state": "", "country": "United States", "latitude": 39.7837304, "longitude": -100.445882, "weatherDescription": "Overcast", "temperature": 15.2, "humidity": 87, "windSpeed": 10.7, "windDirection": "147", "precipitationProbability": 0, "weatherUpdatedAtUtc": "2025-09-12T04:44:19.924521", "tvNetwork": "YouTube", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-07T12:54:01.287113", "updatedAtUtc": "2025-09-12T04:44:21.23494", "odds": [], "recommendations": []}, {"id": "19d4c199-ea76-4e34-979a-73b67e1f15e5", "espnId": "401772719", "league": 1, "season": 2025, "week": 1, "homeTeam": "Colts", "awayTeam": "Dolphins", "homeTeamId": "11", "awayTeamId": "15", "gameDateUtc": "2025-09-08T01:00:00", "status": 0, "homeScore": 33, "awayScore": 8, "venue": "Lucas Oil Stadium", "city": "Indianapolis", "state": "Indiana", "country": "United States", "latitude": 39.7590621, "longitude": -86.1638376, "weatherDescription": "Clear sky", "temperature": 17.2, "humidity": 73, "windSpeed": 16.8, "windDirection": "171", "precipitationProbability": 3, "weatherUpdatedAtUtc": "2025-09-12T04:45:01.619248", "tvNetwork": "CBS", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-07T12:54:01.286232", "updatedAtUtc": "2025-09-12T04:45:02.072454", "odds": [], "recommendations": []}, {"id": "5baae8f2-5cfa-4a72-ac82-6c3471e33cb1", "espnId": "401772720", "league": 1, "season": 2025, "week": 1, "homeTeam": "Patriots", "awayTeam": "Raiders", "homeTeamId": "17", "awayTeamId": "13", "gameDateUtc": "2025-09-08T01:00:00", "status": 0, "homeScore": 13, "awayScore": 20, "venue": "Gillette Stadium", "city": "Foxborough", "state": "Massachusetts", "country": "United States", "latitude": 42.0908879, "longitude": -71.2641731, "weatherDescription": "Clear sky", "temperature": 17.2, "humidity": 73, "windSpeed": 16.8, "windDirection": "171", "precipitationProbability": 3, "weatherUpdatedAtUtc": "2025-09-12T04:45:13.461325", "tvNetwork": "CBS", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-07T12:54:01.286329", "updatedAtUtc": "2025-09-12T04:45:14.388049", "odds": [], "recommendations": []}, {"id": "68f9df89-4c9b-4def-b5ff-9a026dc493ba", "espnId": "401772718", "league": 1, "season": 2025, "week": 1, "homeTeam": "Saints", "awayTeam": "Cardinals", "homeTeamId": "18", "awayTeamId": "22", "gameDateUtc": "2025-09-08T01:00:00", "status": 0, "homeScore": 13, "awayScore": 20, "venue": "Caesars Superdome", "city": "New Orleans", "state": "Louisiana", "country": "United States", "latitude": 29.9510489, "longitude": -90.0823076, "weatherDescription": "Overcast", "temperature": 24.1, "humidity": 55, "windSpeed": 13.6, "windDirection": "37", "precipitationProbability": 0, "weatherUpdatedAtUtc": "2025-09-12T04:45:28.007933", "tvNetwork": "CBS", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-07T12:54:01.286409", "updatedAtUtc": "2025-09-12T04:45:28.26125", "odds": [], "recommendations": []}, {"id": "7dc3787e-9059-495d-bfa0-25115051d316", "espnId": "401772830", "league": 1, "season": 2025, "week": 1, "homeTeam": "Falcons", "awayTeam": "Buccaneers", "homeTeamId": "1", "awayTeamId": "27", "gameDateUtc": "2025-09-08T01:00:00", "status": 0, "homeScore": 20, "awayScore": 23, "venue": "Mercedes-Benz Stadium", "city": "Atlanta", "state": "Georgia", "country": "United States", "latitude": 33.7554123, "longitude": -84.4008493, "weatherDescription": "Clear sky", "temperature": 18.5, "humidity": 81, "windSpeed": 11.5, "windDirection": "58", "precipitationProbability": 0, "weatherUpdatedAtUtc": "2025-09-12T04:44:34.027398", "tvNetwork": "FOX", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-07T12:54:01.283756", "updatedAtUtc": "2025-09-12T04:44:34.383341", "odds": [], "recommendations": []}, {"id": "bfd77566-ad19-4a03-8d12-ab12b16770fb", "espnId": "401772721", "league": 1, "season": 2025, "week": 1, "homeTeam": "Jets", "awayTeam": "Steelers", "homeTeamId": "20", "awayTeamId": "23", "gameDateUtc": "2025-09-08T01:00:00", "status": 0, "homeScore": 32, "awayScore": 34, "venue": "MetLife Stadium", "city": "East Rutherford", "state": "New Jersey", "country": "United States", "latitude": 40.813507, "longitude": -74.0743442, "weatherDescription": "Overcast", "temperature": 14.8, "humidity": 77, "windSpeed": 9.9, "windDirection": "327", "precipitationProbability": 0, "weatherUpdatedAtUtc": "2025-09-12T04:45:40.794786", "tvNetwork": "CBS", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-07T12:54:01.286484", "updatedAtUtc": "2025-09-12T04:45:41.623918", "odds": [], "recommendations": []}, {"id": "c0ca0107-5374-4e7f-a2eb-2118ee8cb67e", "espnId": "401772827", "league": 1, "season": 2025, "week": 1, "homeTeam": "Commanders", "awayTeam": "Giants", "homeTeamId": "28", "awayTeamId": "19", "gameDateUtc": "2025-09-08T01:00:00", "status": 0, "homeScore": 21, "awayScore": 6, "venue": "Northwest Stadium", "city": "Landover", "state": "Maryland", "country": "United States", "latitude": 38.9076874, "longitude": -76.8644869, "weatherDescription": "Clear sky", "temperature": 14.2, "humidity": 74, "windSpeed": 4, "windDirection": "243", "precipitationProbability": 0, "weatherUpdatedAtUtc": "2025-09-12T04:45:52.140469", "tvNetwork": "FOX", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-07T12:54:01.286561", "updatedAtUtc": "2025-09-12T04:45:52.592927", "odds": [], "recommendations": []}, {"id": "f7b3905e-33cb-454d-b632-2cd96c53273a", "espnId": "401772829", "league": 1, "season": 2025, "week": 1, "homeTeam": "Browns", "awayTeam": "Bengals", "homeTeamId": "5", "awayTeamId": "4", "gameDateUtc": "2025-09-08T01:00:00", "status": 0, "homeScore": 16, "awayScore": 17, "venue": "Huntington Bank Field", "city": "Cleveland", "state": "Ohio", "country": "United States", "latitude": 41.5060559, "longitude": -81.6997118, "weatherDescription": "Clear sky", "temperature": 11.1, "humidity": 62, "windSpeed": 10.9, "windDirection": "163", "precipitationProbability": 0, "weatherUpdatedAtUtc": "2025-09-12T04:44:47.299475", "tvNetwork": "FOX", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-07T12:54:01.286047", "updatedAtUtc": "2025-09-12T04:44:48.248247", "odds": [], "recommendations": []}, {"id": "fc970ac8-6d35-47a6-aa2a-b8e8cd639218", "espnId": "401772828", "league": 1, "season": 2025, "week": 1, "homeTeam": "Jaguars", "awayTeam": "Panthers", "homeTeamId": "30", "awayTeamId": "29", "gameDateUtc": "2025-09-08T01:00:00", "status": 0, "homeScore": 26, "awayScore": 10, "venue": "EverBank Stadium", "city": "Jacksonville", "state": "Florida", "country": "United States", "latitude": 30.3239811, "longitude": -81.6373046, "weatherDescription": "Partly cloudy", "temperature": 25, "humidity": 90, "windSpeed": 3.2, "windDirection": "117", "precipitationProbability": 9, "weatherUpdatedAtUtc": "2025-09-12T04:46:02.996709", "tvNetwork": "FOX", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-07T12:54:01.286638", "updatedAtUtc": "2025-09-12T04:46:03.833863", "odds": [], "recommendations": []}, {"id": "4f57647e-048f-4302-9199-151e43fefca3", "espnId": "401772832", "league": 1, "season": 2025, "week": 1, "homeTeam": "Broncos", "awayTeam": "Titans", "homeTeamId": "7", "awayTeamId": "10", "gameDateUtc": "2025-09-08T04:05:00", "status": 0, "homeScore": 20, "awayScore": 12, "venue": "Empower Field at Mile High", "city": "Denver", "state": "Colorado", "country": "United States", "latitude": 39.743952, "longitude": -105.0192228, "weatherDescription": "Clear sky", "temperature": 15.1, "humidity": 54, "windSpeed": 5.8, "windDirection": "202", "precipitationProbability": 0, "weatherUpdatedAtUtc": "2025-09-12T04:46:16.176467", "tvNetwork": "FOX", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-07T12:54:01.286713", "updatedAtUtc": "2025-09-12T04:46:16.486359", "odds": [], "recommendations": []}, {"id": "f63f85bc-cb1c-4348-98f4-10bf7596a083", "espnId": "401772831", "league": 1, "season": 2025, "week": 1, "homeTeam": "Seahawks", "awayTeam": "49ers", "homeTeamId": "26", "awayTeamId": "25", "gameDateUtc": "2025-09-08T04:05:00", "status": 0, "homeScore": 13, "awayScore": 17, "venue": "Lumen Field", "city": "Seattle", "state": "Washington", "country": "United States", "latitude": 47.5953459, "longitude": -122.3316443, "weatherDescription": "Clear sky", "temperature": 15.2, "humidity": 88, "windSpeed": 2.9, "windDirection": "360", "precipitationProbability": 2, "weatherUpdatedAtUtc": "2025-09-12T04:46:30.500109", "tvNetwork": "FOX", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-07T12:54:01.286783", "updatedAtUtc": "2025-09-12T04:46:31.342726", "odds": [], "recommendations": []}, {"id": "31e0ab7f-265b-48c7-b0db-b5b1acb2405c", "espnId": "401772723", "league": 1, "season": 2025, "week": 1, "homeTeam": "Rams", "awayTeam": "Texans", "homeTeamId": "14", "awayTeamId": "34", "gameDateUtc": "2025-09-08T04:25:00", "status": 0, "homeScore": 14, "awayScore": 9, "venue": "SoFi Stadium", "city": "Inglewood", "state": "California", "country": "United States", "latitude": 33.9534074, "longitude": -118.3390098, "weatherDescription": "Clear sky", "temperature": 16.6, "humidity": 79, "windSpeed": 14.8, "windDirection": "181", "precipitationProbability": 17, "weatherUpdatedAtUtc": "2025-09-12T04:46:52.92015", "tvNetwork": "CBS", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-07T12:54:01.286916", "updatedAtUtc": "2025-09-12T04:46:53.794471", "odds": [], "recommendations": []}, {"id": "3ef211ed-b476-4768-a9c4-b44ff31ce453", "espnId": "401772722", "league": 1, "season": 2025, "week": 1, "homeTeam": "Packers", "awayTeam": "Lions", "homeTeamId": "9", "awayTeamId": "8", "gameDateUtc": "2025-09-08T04:25:00", "status": 0, "homeScore": 27, "awayScore": 13, "venue": "Lambeau Field", "city": "Green Bay", "state": "Wisconsin", "country": "United States", "latitude": 44.5009705, "longitude": -88.0619681, "weatherDescription": "Clear sky", "temperature": 16.6, "humidity": 79, "windSpeed": 14.8, "windDirection": "181", "precipitationProbability": 17, "weatherUpdatedAtUtc": "2025-09-12T04:46:43.216585", "tvNetwork": "CBS", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-07T12:54:01.286852", "updatedAtUtc": "2025-09-12T04:46:43.44194", "odds": [], "recommendations": []}, {"id": "2395ff43-5ede-45bc-bbe0-86a45f7962e8", "espnId": "401772918", "league": 1, "season": 2025, "week": 1, "homeTeam": "Bills", "awayTeam": "Ravens", "homeTeamId": "2", "awayTeamId": "33", "gameDateUtc": "2025-09-08T08:20:00", "status": 0, "homeScore": 41, "awayScore": 40, "venue": "Highmark Stadium", "city": "Town of Orchard Park", "state": "New York", "country": "United States", "latitude": 42.7737334, "longitude": -78.7868798, "weatherDescription": "Clear sky", "temperature": 9.7, "humidity": 90, "windSpeed": 4.6, "windDirection": "162", "precipitationProbability": 0, "weatherUpdatedAtUtc": "2025-09-12T04:47:04.717492", "tvNetwork": "NBC", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-07T12:54:01.286983", "updatedAtUtc": "2025-09-12T04:47:04.944285", "odds": [], "recommendations": []}, {"id": "dec3334b-1a95-4c8c-b681-51094d685d7f", "espnId": "401772810", "league": 1, "season": 2025, "week": 1, "homeTeam": "Bears", "awayTeam": "Vikings", "homeTeamId": "3", "awayTeamId": "16", "gameDateUtc": "2025-09-09T08:15:00", "status": 0, "homeScore": 24, "awayScore": 27, "venue": "Soldier Field", "city": "Chicago", "state": "Illinois", "country": "United States", "latitude": 41.8623356, "longitude": -87.6176477, "weatherDescription": "Partly cloudy", "temperature": 12.2, "humidity": 73, "windSpeed": 5, "windDirection": "210", "precipitationProbability": 0, "weatherUpdatedAtUtc": "2025-09-12T04:47:17.316356", "tvNetwork": "ABC", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-07T12:54:01.287177", "updatedAtUtc": "2025-09-12T04:47:18.172497", "odds": [], "recommendations": []}]}, "2": {"weekInfo": {"currentWeek": 2, "totalWeeks": 18, "seasonYear": 2025, "weekStartDate": "2025-09-11T00:00:00", "weekEndDate": "2025-09-17T00:00:00"}, "recommendations": [{"id": 114, "gameId": "5b72f293-1e33-48a0-ba18-a85f691d0845", "betType": 1, "side": 0, "line": -6.5, "confidence": 0.8675, "recommendationType": 0, "expectedValue": 0.09110714285714291, "kellyPercentage": 0.05300000000000006, "recommendedWager": 493.25780769095877, "reasoning": "The Cardinals are strong favorites at home (-6.5) against the Panthers.  The Cardinals won their Week 1 game, while the Panthers lost. The Panthers have a significant travel distance (1788 km). The Cardinals have a better defensive ranking (9 vs 24). While the Panthers have more head-to-head wins in the last 10 years (5-1), the Cardinals' home-field advantage and the Panthers' travel disadvantage suggest a strong likelihood of covering the spread. The market efficiency is relatively high (0.9302), indicating less value than initially expected.  The injuries to both teams are a factor, but not enough to sway the pick. | Based on comprehensive contextual analysis including injuries, team dynamics, and situational factors | Additional: Top Pick, Spread Value", "wasCorrect": null, "actualOutcome": null, "profitLoss": null, "oddsAtTimeOfBet": -112, "closingOdds": null, "outcomeRecordedAtUtc": null, "sportsbook": "BetRivers", "isTopPick": true, "isFromGemini": true, "keyFactors": "AI Analysis,Contextual Factors,Situational Intelligence,Top Pick,Spread Value", "weatherImpact": 0.1, "lineValue": 0.025000000000000022, "marketEfficiency": 0.8, "createdAtUtc": "2025-09-12T05:02:24.00314", "updatedAtUtc": "2025-09-12T05:02:24.00314", "gameInfo": "Panthers @ Cardinals", "gameDate": null, "gameTime": "2025-09-15T04:05:00", "tvNetwork": "CBS", "broadcastType": "National", "homeScore": 0, "awayScore": 0}, {"id": 115, "gameId": "5e217ef9-f1c8-4afc-be3e-1164d3cdd33e", "betType": 0, "side": 0, "line": null, "confidence": 0.793, "recommendationType": 0, "expectedValue": 0.07492800000000009, "kellyPercentage": 0.02600000000000005, "recommendedWager": 241.97552830122524, "reasoning": "The Chargers are favored (-185 moneyline at DraftKings), but the Raiders are at home and have a relatively short travel distance for the Chargers (232 km). Both teams are 1-0, but the Raiders' strong offensive performance in Week 1 (418 total yards) and the Chargers' relatively weaker defensive ranking (22 vs 12) suggest a potential value bet on the Raiders moneyline. The head-to-head record is even (10-10) over the last 10 years. The market efficiency is moderate (0.7692), suggesting some value, but the relatively low confidence makes this a risky bet. | Based on comprehensive contextual analysis including injuries, team dynamics, and situational factors | Additional: Top Pick, Moneyline Simplicity", "wasCorrect": null, "actualOutcome": null, "profitLoss": null, "oddsAtTimeOfBet": 160, "closingOdds": null, "outcomeRecordedAtUtc": null, "sportsbook": "BetOnline.ag", "isTopPick": true, "isFromGemini": true, "keyFactors": "AI Analysis,Contextual Factors,Situational Intelligence,Top Pick,Moneyline Simplicity", "weatherImpact": 0.1, "lineValue": 0.016000000000000014, "marketEfficiency": 0.8, "createdAtUtc": "2025-09-12T05:02:24.01043", "updatedAtUtc": "2025-09-12T05:02:24.01043", "gameInfo": "Chargers @ Raiders", "gameDate": null, "gameTime": "2025-09-16T10:00:00", "tvNetwork": "ESPN", "broadcastType": "National", "homeScore": 0, "awayScore": 0}, {"id": 116, "gameId": "3eff4102-302d-4eee-86b9-45af7af44fb8", "betType": 1, "side": 0, "line": -2.5, "confidence": 0.756, "recommendationType": 0, "expectedValue": 0.05638857142857145, "kellyPercentage": 0.045100000000000015, "recommendedWager": 419.73447409174, "reasoning": "The Dolphins are favored at home (-2.5) against the Patriots.  While both teams are 0-1, the Dolphins have a significant head-to-head advantage (12-8 over the last 10 years). The Patriots have a long travel distance (1232 km). Although the Dolphins had a poor offensive showing in Week 1, their home advantage and the Patriots' travel could offset this.  However, the numerous questionable injuries to key Dolphins players (Waddle, Waller, Davis, Bonner, Jones) and the Patriots' potential for a bounce-back game reduce my confidence. The market efficiency is high (0.9756), suggesting less value. | Based on comprehensive contextual analysis including injuries, team dynamics, and situational factors | Additional: Spread Value", "wasCorrect": null, "actualOutcome": null, "profitLoss": null, "oddsAtTimeOfBet": -105, "closingOdds": null, "outcomeRecordedAtUtc": null, "sportsbook": "BetMGM", "isTopPick": false, "isFromGemini": true, "keyFactors": "AI Analysis,Contextual Factors,Situational Intelligence,Spread Value", "weatherImpact": 0.1, "lineValue": 0.02200000000000002, "marketEfficiency": 0.8, "createdAtUtc": "2025-09-12T05:02:23.998058", "updatedAtUtc": "2025-09-12T05:02:23.998058", "gameInfo": "Patriots @ Dolphins", "gameDate": null, "gameTime": "2025-09-15T01:00:00", "tvNetwork": "CBS", "broadcastType": "National", "homeScore": 0, "awayScore": 0}, {"id": 117, "gameId": "14baf843-a866-4fab-9c26-86f1013f8fa1", "betType": 1, "side": 0, "line": -3.5, "confidence": 0.735, "recommendationType": 0, "expectedValue": 0.05492799999999997, "kellyPercentage": 0.03851851851851849, "recommendedWager": 358.4822641499623, "reasoning": "The Vikings are favored at home against the Falcons, who are coming off a loss and have a significant travel distance (906.9 km). While the Falcons have a higher overall ranking (6 vs 20), the Vikings' 1-0 record and home-field advantage, coupled with the Falcons' 0-1 record and travel fatigue, suggest a potential value bet on the Vikings spread.  The Vikings have a slight edge in head-to-head wins (5-1) over the last 10 years.  However, the numerous questionable injuries to key Vikings players (Kelly, Darrisaw, Okudah, Rodgers, Scott, Smith, Van Ginkel, Oliver) significantly reduce my confidence. The market efficiency for this spread is high (0.9756), suggesting a lack of significant value.  I'm hesitant to bet this line at 108 due to the injury concerns. | Based on comprehensive contextual analysis including injuries, team dynamics, and situational factors | Additional: Spread Value", "wasCorrect": null, "actualOutcome": null, "profitLoss": null, "oddsAtTimeOfBet": 108, "closingOdds": null, "outcomeRecordedAtUtc": null, "sportsbook": "LowVig.ag", "isTopPick": false, "isFromGemini": true, "keyFactors": "AI Analysis,Contextual Factors,Situational Intelligence,Spread Value", "weatherImpact": 0.1, "lineValue": 0.019999999999999962, "marketEfficiency": 0.8, "createdAtUtc": "2025-09-12T05:02:23.984124", "updatedAtUtc": "2025-09-12T05:02:23.984128", "gameInfo": "Falcons @ Vikings", "gameDate": null, "gameTime": "2025-09-15T08:20:00", "tvNetwork": "NBC", "broadcastType": "National", "homeScore": 0, "awayScore": 0}, {"id": 118, "gameId": "383ddbd5-a0f4-4301-bbdb-3b66f2340916", "betType": 0, "side": 0, "line": null, "confidence": 0.7340000000000001, "recommendationType": 0, "expectedValue": 0.04840560000000009, "kellyPercentage": 0.030080536912751733, "recommendedWager": 279.95206965567667, "reasoning": "The 49ers are heavily favored (-170 moneyline at DraftKings), but the Saints are at home and the 49ers have a long travel distance (1895 km) and a potentially significant injury to their starting QB (Purdy - Doubtful).  While the 49ers have a better record (1-0) and defensive ranking (5 vs 13), the Saints' home-field advantage and the uncertainty surrounding the 49ers' quarterback situation present a potential upset opportunity.  The head-to-head record is even (2-2) over the last 10 years.  The market efficiency for the Saints moneyline is relatively high (0.8032), indicating less value than initially expected. The injury to Purdy significantly impacts the 49ers' chances, but the uncertainty makes this a risky bet. | Based on comprehensive contextual analysis including injuries, team dynamics, and situational factors | Additional: Moneyline Simplicity", "wasCorrect": null, "actualOutcome": null, "profitLoss": null, "oddsAtTimeOfBet": 149, "closingOdds": null, "outcomeRecordedAtUtc": null, "sportsbook": "LowVig.ag", "isTopPick": false, "isFromGemini": true, "keyFactors": "AI Analysis,Contextual Factors,Situational Intelligence,Moneyline Simplicity", "weatherImpact": 0.1, "lineValue": 0.018000000000000016, "marketEfficiency": 0.8, "createdAtUtc": "2025-09-12T05:02:23.992977", "updatedAtUtc": "2025-09-12T05:02:23.992977", "gameInfo": "49ers @ Saints", "gameDate": null, "gameTime": "2025-09-15T01:00:00", "tvNetwork": "FOX", "broadcastType": "National", "homeScore": 0, "awayScore": 0}, {"id": 119, "gameId": "5c48a297-e932-4bc3-8d55-678677ef5f21", "betType": 0, "side": 0, "line": null, "confidence": 0.6335899507158719, "recommendationType": 0, "expectedValue": 0.01967532538698672, "kellyPercentage": 0.01784610012425099, "recommendedWager": 166.08921175700718, "reasoning": "ALGORITHM: Modeled win probability: 49.7%; Efficient market conditions (efficiency: 173.0%); Dome environment - consistent playing conditions; Moneyline bet - pure win/loss outcome | Based on quantitative analysis of market efficiency, weather, and historical data | Additional: Moneyline Simplicity", "wasCorrect": null, "actualOutcome": null, "profitLoss": null, "oddsAtTimeOfBet": 105, "closingOdds": null, "outcomeRecordedAtUtc": null, "sportsbook": "DraftKings", "isTopPick": false, "isFromGemini": false, "keyFactors": "Quantitative Analysis,Market Efficiency,Historical Data,Moneyline Simplicity", "weatherImpact": 0, "lineValue": 0.009140685429494366, "marketEfficiency": 1.7303682041190693, "createdAtUtc": "2025-09-12T05:01:54.442971", "updatedAtUtc": "2025-09-12T05:01:54.443019", "gameInfo": "Eagles @ Chiefs", "gameDate": null, "gameTime": "2025-09-15T04:25:00", "tvNetwork": "FOX", "broadcastType": "National", "homeScore": 0, "awayScore": 0}, {"id": 120, "gameId": "7a58a9c2-827f-4911-9a74-152e00defd1a", "betType": 0, "side": 0, "line": null, "confidence": 0.7239107028988887, "recommendationType": 0, "expectedValue": 0.009755544798362081, "kellyPercentage": 0.008446359132781023, "recommendedWager": 78.60816205294472, "reasoning": "ALGORITHM: Modeled win probability: 48.1%; Efficient market conditions (efficiency: 204.5%); Dome environment - consistent playing conditions; Moneyline bet - pure win/loss outcome | Based on quantitative analysis of market efficiency, weather, and historical data | Additional: Moneyline Simplicity", "wasCorrect": null, "actualOutcome": null, "profitLoss": null, "oddsAtTimeOfBet": 110, "closingOdds": null, "outcomeRecordedAtUtc": null, "sportsbook": "DraftKings", "isTopPick": false, "isFromGemini": false, "keyFactors": "Quantitative Analysis,Market Efficiency,Historical Data,Moneyline Simplicity", "weatherImpact": 0, "lineValue": 0.004424283355266234, "marketEfficiency": 2.045275781811167, "createdAtUtc": "2025-09-12T05:01:54.521185", "updatedAtUtc": "2025-09-12T05:01:54.521189", "gameInfo": "Broncos @ Colts", "gameDate": null, "gameTime": "2025-09-15T04:05:00", "tvNetwork": "CBS", "broadcastType": "National", "homeScore": 0, "awayScore": 0}], "performance": {"totalBets": 6, "totalWager": 1511.4908512767643, "winRate": 0.3333333333333333, "totalProfitLoss": -693.2489114913548, "averageBet": 251.91514187946072, "roi": -0.45865240329160034, "topPicksCount": 3, "topPicksWager": 1270.2251364260192, "topPicksProfitLoss": -576.8243231315766, "topPicksROI": -0.4541118787450261, "topPicksWinRate": 0.3333333333333333, "betTypeBreakdown": {"Moneyline": {"count": 4, "winRate": 0.5, "profitLoss": -520.0783565447737, "averageWager": 334.5800740825457}, "Total": {"count": 1, "winRate": 0, "profitLoss": -67.39697756508289, "averageWager": 67.39697756508289}, "Spread": {"count": 1, "winRate": 0, "profitLoss": -105.77357738149826, "averageWager": 105.77357738149826}}, "performanceByWeek": {"Week 1": {"count": 6, "winRate": 0.3333333333333333, "profitLoss": -693.2489114913548, "totalWagered": 1511.4908512767643}}}, "games": [{"id": "6f09582a-3e69-4c11-90f4-7ff90350beb6", "espnId": "401772936", "league": 1, "season": 2025, "week": 2, "homeTeam": "Packers", "awayTeam": "Commanders", "homeTeamId": "9", "awayTeamId": "28", "gameDateUtc": "2025-09-12T08:15:00", "status": 0, "homeScore": 14, "awayScore": 0, "venue": "Lambeau Field", "city": "Green Bay", "state": "Wisconsin", "country": "United States", "latitude": 44.5009705, "longitude": -88.0619681, "weatherDescription": "Fog", "temperature": 11.8, "humidity": 100, "windSpeed": 1.4, "windDirection": "360", "precipitationProbability": 0, "weatherUpdatedAtUtc": "2025-09-12T01:14:52.02243", "tvNetwork": "Prime Video", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-10T00:06:14.060031", "updatedAtUtc": "2025-09-12T01:14:53.088985", "odds": [], "recommendations": []}, {"id": "383ddbd5-a0f4-4301-bbdb-3b66f2340916", "espnId": "401772833", "league": 1, "season": 2025, "week": 2, "homeTeam": "Saints", "awayTeam": "49ers", "homeTeamId": "18", "awayTeamId": "25", "gameDateUtc": "2025-09-15T01:00:00", "status": 0, "homeScore": 0, "awayScore": 0, "venue": "Caesars Superdome", "city": "New Orleans", "state": "Louisiana", "country": "United States", "latitude": 29.9510489, "longitude": -90.0823076, "weatherDescription": "Overcast", "temperature": 26.3, "humidity": 64, "windSpeed": 9.3, "windDirection": "242", "precipitationProbability": 0, "weatherUpdatedAtUtc": "2025-09-12T01:16:24.135822", "tvNetwork": "FOX", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-10T00:06:17.441924", "updatedAtUtc": "2025-09-12T01:16:25.107528", "odds": [], "recommendations": []}, {"id": "3eff4102-302d-4eee-86b9-45af7af44fb8", "espnId": "401772728", "league": 1, "season": 2025, "week": 2, "homeTeam": "Dolphins", "awayTeam": "Patriots", "homeTeamId": "15", "awayTeamId": "17", "gameDateUtc": "2025-09-15T01:00:00", "status": 0, "homeScore": 0, "awayScore": 0, "venue": "Hard Rock Stadium", "city": "Miami Gardens", "state": "Florida", "country": "United States", "latitude": 25.9579031, "longitude": -80.2388497, "weatherDescription": "Clear sky", "temperature": 28, "humidity": 61, "windSpeed": 8.4, "windDirection": "100", "precipitationProbability": 29, "weatherUpdatedAtUtc": "2025-09-12T01:16:10.12824", "tvNetwork": "CBS", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-10T15:36:59.777095", "updatedAtUtc": "2025-09-12T01:16:10.499382", "odds": [], "recommendations": []}, {"id": "5ec5278b-afd3-4305-a28a-98a683ba3d24", "espnId": "401772834", "league": 1, "season": 2025, "week": 2, "homeTeam": "Cowboys", "awayTeam": "Giants", "homeTeamId": "6", "awayTeamId": "19", "gameDateUtc": "2025-09-15T01:00:00", "status": 0, "homeScore": 0, "awayScore": 0, "venue": "AT&T Stadium", "city": "Arlington", "state": "Texas", "country": "United States", "latitude": 32.7478502, "longitude": -97.0928337, "weatherDescription": "Clear sky", "temperature": 29.1, "humidity": 36, "windSpeed": 9.7, "windDirection": "178", "precipitationProbability": 0, "weatherUpdatedAtUtc": "2025-09-12T01:15:24.977923", "tvNetwork": "FOX", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-10T15:36:59.774126", "updatedAtUtc": "2025-09-12T01:15:26.256489", "odds": [], "recommendations": []}, {"id": "68d93d03-562c-4f94-ad56-23921c11e438", "espnId": "401772836", "league": 1, "season": 2025, "week": 2, "homeTeam": "Steelers", "awayTeam": "Seahawks", "homeTeamId": "23", "awayTeamId": "26", "gameDateUtc": "2025-09-15T01:00:00", "status": 0, "homeScore": 0, "awayScore": 0, "venue": "Acrisure Stadium", "city": "Pittsburgh", "state": "Pennsylvania", "country": "United States", "latitude": 40.4467166, "longitude": -80.0157199, "weatherDescription": "Clear sky", "temperature": 19.3, "humidity": 70, "windSpeed": 3.5, "windDirection": "66", "precipitationProbability": 0, "weatherUpdatedAtUtc": "2025-09-12T01:16:51.37528", "tvNetwork": "FOX", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-10T15:36:59.779702", "updatedAtUtc": "2025-09-12T01:16:52.393479", "odds": [], "recommendations": []}, {"id": "6c3999a7-80a2-436c-aa36-24ffea0c714a", "espnId": "401772726", "league": 1, "season": 2025, "week": 2, "homeTeam": "Ravens", "awayTeam": "Browns", "homeTeamId": "33", "awayTeamId": "5", "gameDateUtc": "2025-09-15T01:00:00", "status": 0, "homeScore": 0, "awayScore": 0, "venue": "M&T Bank Stadium", "city": "Baltimore", "state": "Maryland", "country": "United States", "latitude": 39.2779734, "longitude": -76.6226651, "weatherDescription": "Clear sky", "temperature": 20, "humidity": 75, "windSpeed": 6.8, "windDirection": "245", "precipitationProbability": 2, "weatherUpdatedAtUtc": "2025-09-12T01:17:08.320978", "tvNetwork": "CBS", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-10T00:06:17.44339", "updatedAtUtc": "2025-09-12T01:17:08.843145", "odds": [], "recommendations": []}, {"id": "93a7f675-4c35-4396-ab48-2070ff90c4d0", "espnId": "401772724", "league": 1, "season": 2025, "week": 2, "homeTeam": "Titans", "awayTeam": "Rams", "homeTeamId": "10", "awayTeamId": "14", "gameDateUtc": "2025-09-15T01:00:00", "status": 0, "homeScore": 0, "awayScore": 0, "venue": "Nissan Stadium", "city": "Nashville", "state": "Tennessee", "country": "United States", "latitude": 36.1665236, "longitude": -86.7713148, "weatherDescription": "Clear sky", "temperature": 24.4, "humidity": 53, "windSpeed": 5.2, "windDirection": "192", "precipitationProbability": 2, "weatherUpdatedAtUtc": "2025-09-12T01:15:55.558593", "tvNetwork": "CBS", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-10T15:36:59.776356", "updatedAtUtc": "2025-09-12T01:15:56.682557", "odds": [], "recommendations": []}, {"id": "98fb4bec-e0df-4da2-a320-0c2dbebdd9ee", "espnId": "401772727", "league": 1, "season": 2025, "week": 2, "homeTeam": "Jets", "awayTeam": "Bills", "homeTeamId": "20", "awayTeamId": "2", "gameDateUtc": "2025-09-15T01:00:00", "status": 0, "homeScore": 0, "awayScore": 0, "venue": "MetLife Stadium", "city": "East Rutherford", "state": "New Jersey", "country": "United States", "latitude": 40.813507, "longitude": -74.0743442, "weatherDescription": "Clear sky", "temperature": 20.4, "humidity": 75, "windSpeed": 5.5, "windDirection": "238", "precipitationProbability": 5, "weatherUpdatedAtUtc": "2025-09-12T01:16:39.83792", "tvNetwork": "CBS", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-10T15:36:59.778825", "updatedAtUtc": "2025-09-12T01:16:40.172015", "odds": [], "recommendations": []}, {"id": "a6e8031b-6d4c-49c7-8e1d-6eeabe264d22", "espnId": "401772835", "league": 1, "season": 2025, "week": 2, "homeTeam": "Lions", "awayTeam": "Bears", "homeTeamId": "8", "awayTeamId": "3", "gameDateUtc": "2025-09-15T01:00:00", "status": 0, "homeScore": 0, "awayScore": 0, "venue": "Ford Field", "city": "Detroit", "state": "Michigan", "country": "United States", "latitude": 42.3399567, "longitude": -83.0456166, "weatherDescription": "Clear sky", "temperature": 20.2, "humidity": 62, "windSpeed": 7.4, "windDirection": "76", "precipitationProbability": 0, "weatherUpdatedAtUtc": "2025-09-12T01:15:41.477972", "tvNetwork": "FOX", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-10T15:36:59.775444", "updatedAtUtc": "2025-09-12T01:15:42.092354", "odds": [], "recommendations": []}, {"id": "bfc2d5ae-c4b7-4891-a696-e7e6f42946b1", "espnId": "401772725", "league": 1, "season": 2025, "week": 2, "homeTeam": "Bengals", "awayTeam": "Jaguars", "homeTeamId": "4", "awayTeamId": "30", "gameDateUtc": "2025-09-15T01:00:00", "status": 0, "homeScore": 0, "awayScore": 0, "venue": "Paycor Stadium", "city": "Cincinnati", "state": "Ohio", "country": "United States", "latitude": 39.0954645, "longitude": -84.5160488, "weatherDescription": "Clear sky", "temperature": 21.9, "humidity": 57, "windSpeed": 5.1, "windDirection": "176", "precipitationProbability": 4, "weatherUpdatedAtUtc": "2025-09-12T01:15:10.107825", "tvNetwork": "CBS", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-10T00:06:17.440668", "updatedAtUtc": "2025-09-12T01:15:10.377651", "odds": [], "recommendations": []}, {"id": "5b72f293-1e33-48a0-ba18-a85f691d0845", "espnId": "401772730", "league": 1, "season": 2025, "week": 2, "homeTeam": "Cardinals", "awayTeam": "Panthers", "homeTeamId": "22", "awayTeamId": "29", "gameDateUtc": "2025-09-15T04:05:00", "status": 0, "homeScore": 0, "awayScore": 0, "venue": "State Farm Stadium", "city": "Glendale", "state": "Arizona", "country": "United States", "latitude": 33.5277957, "longitude": -112.2626719, "weatherDescription": "Mainly clear", "temperature": 30.5, "humidity": 16, "windSpeed": 7.2, "windDirection": "233", "precipitationProbability": 1, "weatherUpdatedAtUtc": "2025-09-12T01:17:38.727124", "tvNetwork": "CBS", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-10T15:36:59.781435", "updatedAtUtc": "2025-09-12T01:17:39.22266", "odds": [], "recommendations": []}, {"id": "7a58a9c2-827f-4911-9a74-152e00defd1a", "espnId": "401772729", "league": 1, "season": 2025, "week": 2, "homeTeam": "Colts", "awayTeam": "Broncos", "homeTeamId": "11", "awayTeamId": "7", "gameDateUtc": "2025-09-15T04:05:00", "status": 0, "homeScore": 0, "awayScore": 0, "venue": "Lucas Oil Stadium", "city": "Indianapolis", "state": "Indiana", "country": "United States", "latitude": 39.7590621, "longitude": -86.1638376, "weatherDescription": "Clear sky", "temperature": 22.1, "humidity": 62, "windSpeed": 4.5, "windDirection": "166", "precipitationProbability": 2, "weatherUpdatedAtUtc": "2025-09-12T01:17:23.515895", "tvNetwork": "CBS", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-10T15:36:59.780914", "updatedAtUtc": "2025-09-12T01:17:24.686291", "odds": [], "recommendations": []}, {"id": "5c48a297-e932-4bc3-8d55-678677ef5f21", "espnId": "401772837", "league": 1, "season": 2025, "week": 2, "homeTeam": "Chiefs", "awayTeam": "Eagles", "homeTeamId": "12", "awayTeamId": "21", "gameDateUtc": "2025-09-15T04:25:00", "status": 0, "homeScore": 0, "awayScore": 0, "venue": "GEHA Field at Arrowhead Stadium", "city": "Kansas City", "state": "Missouri", "country": "United States", "latitude": 39.0489357, "longitude": -94.4839993, "weatherDescription": "Light drizzle", "temperature": 23.2, "humidity": 67, "windSpeed": 12.1, "windDirection": "190", "precipitationProbability": 6, "weatherUpdatedAtUtc": "2025-09-12T01:17:54.186313", "tvNetwork": "FOX", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-10T15:36:59.781988", "updatedAtUtc": "2025-09-12T01:17:56.27056", "odds": [], "recommendations": []}, {"id": "14baf843-a866-4fab-9c26-86f1013f8fa1", "espnId": "401772919", "league": 1, "season": 2025, "week": 2, "homeTeam": "Vikings", "awayTeam": "Falcons", "homeTeamId": "16", "awayTeamId": "1", "gameDateUtc": "2025-09-15T08:20:00", "status": 0, "homeScore": 0, "awayScore": 0, "venue": "U.S. Bank Stadium", "city": "Minneapolis", "state": "Minnesota", "country": "United States", "latitude": 44.9751097, "longitude": -93.2593387, "weatherDescription": "Overcast", "temperature": 20.7, "humidity": 95, "windSpeed": 8.4, "windDirection": "137", "precipitationProbability": 5, "weatherUpdatedAtUtc": "2025-09-12T01:18:11.376861", "tvNetwork": "NBC", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-10T15:36:59.782528", "updatedAtUtc": "2025-09-12T01:18:12.644318", "odds": [], "recommendations": []}, {"id": "9fc5cdc9-d925-4bcc-a13f-134a32892567", "espnId": "401772715", "league": 1, "season": 2025, "week": 2, "homeTeam": "Texans", "awayTeam": "Buccaneers", "homeTeamId": "34", "awayTeamId": "27", "gameDateUtc": "2025-09-16T07:00:00", "status": 0, "homeScore": 0, "awayScore": 0, "venue": "NRG Stadium", "city": "Houston", "state": "Texas", "country": "United States", "latitude": 29.6848581, "longitude": -95.4108015, "weatherDescription": "Partly cloudy", "temperature": 25.6, "humidity": 67, "windSpeed": 2.4, "windDirection": "243", "precipitationProbability": 2, "weatherUpdatedAtUtc": "2025-09-12T01:18:27.19028", "tvNetwork": "ABC", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-10T15:36:59.783263", "updatedAtUtc": "2025-09-12T01:18:27.443069", "odds": [], "recommendations": []}, {"id": "5e217ef9-f1c8-4afc-be3e-1164d3cdd33e", "espnId": "401772811", "league": 1, "season": 2025, "week": 2, "homeTeam": "Raiders", "awayTeam": "Chargers", "homeTeamId": "13", "awayTeamId": "24", "gameDateUtc": "2025-09-16T10:00:00", "status": 0, "homeScore": 0, "awayScore": 0, "venue": "Allegiant Stadium", "city": "Las Vegas", "state": "Nevada", "country": "United States", "latitude": 36.0907359, "longitude": -115.1833303, "weatherDescription": "Clear sky", "temperature": 28.7, "humidity": 18, "windSpeed": 4.7, "windDirection": "81", "precipitationProbability": 0, "weatherUpdatedAtUtc": "2025-09-12T01:18:40.84334", "tvNetwork": "ESPN", "broadcastType": "National", "actualOutcome": null, "createdAtUtc": "2025-09-10T15:36:59.78413", "updatedAtUtc": "2025-09-12T01:18:41.857086", "odds": [], "recommendations": []}]}, "3": {"weekInfo": {"currentWeek": 3, "totalWeeks": 18, "seasonYear": 2025, "weekStartDate": "2025-09-18T00:00:00", "weekEndDate": "2025-09-24T00:00:00"}, "recommendations": [], "performance": {"totalBets": 6, "totalWager": 1511.4908512767643, "winRate": 0.3333333333333333, "totalProfitLoss": -693.2489114913548, "averageBet": 251.91514187946072, "roi": -0.45865240329160034, "topPicksCount": 3, "topPicksWager": 1270.2251364260192, "topPicksProfitLoss": -576.8243231315766, "topPicksROI": -0.4541118787450261, "topPicksWinRate": 0.3333333333333333, "betTypeBreakdown": {"Moneyline": {"count": 4, "winRate": 0.5, "profitLoss": -520.0783565447737, "averageWager": 334.5800740825457}, "Total": {"count": 1, "winRate": 0, "profitLoss": -67.39697756508289, "averageWager": 67.39697756508289}, "Spread": {"count": 1, "winRate": 0, "profitLoss": -105.77357738149826, "averageWager": 105.77357738149826}}, "performanceByWeek": {"Week 1": {"count": 6, "winRate": 0.3333333333333333, "profitLoss": -693.2489114913548, "totalWagered": 1511.4908512767643}}}, "games": []}, "4": {"weekInfo": {"currentWeek": 4, "totalWeeks": 18, "seasonYear": 2025, "weekStartDate": "2025-09-25T00:00:00", "weekEndDate": "2025-10-01T00:00:00"}, "recommendations": [], "performance": {"totalBets": 6, "totalWager": 1511.4908512767643, "winRate": 0.3333333333333333, "totalProfitLoss": -693.2489114913548, "averageBet": 251.91514187946072, "roi": -0.45865240329160034, "topPicksCount": 3, "topPicksWager": 1270.2251364260192, "topPicksProfitLoss": -576.8243231315766, "topPicksROI": -0.4541118787450261, "topPicksWinRate": 0.3333333333333333, "betTypeBreakdown": {"Moneyline": {"count": 4, "winRate": 0.5, "profitLoss": -520.0783565447737, "averageWager": 334.5800740825457}, "Total": {"count": 1, "winRate": 0, "profitLoss": -67.39697756508289, "averageWager": 67.39697756508289}, "Spread": {"count": 1, "winRate": 0, "profitLoss": -105.77357738149826, "averageWager": 105.77357738149826}}, "performanceByWeek": {"Week 1": {"count": 6, "winRate": 0.3333333333333333, "profitLoss": -693.2489114913548, "totalWagered": 1511.4908512767643}}}, "games": []}, "5": {"weekInfo": {"currentWeek": 5, "totalWeeks": 18, "seasonYear": 2025, "weekStartDate": "2025-10-02T00:00:00", "weekEndDate": "2025-10-08T00:00:00"}, "recommendations": [], "performance": {"totalBets": 6, "totalWager": 1511.4908512767643, "winRate": 0.3333333333333333, "totalProfitLoss": -693.2489114913548, "averageBet": 251.91514187946072, "roi": -0.45865240329160034, "topPicksCount": 3, "topPicksWager": 1270.2251364260192, "topPicksProfitLoss": -576.8243231315766, "topPicksROI": -0.4541118787450261, "topPicksWinRate": 0.3333333333333333, "betTypeBreakdown": {"Moneyline": {"count": 4, "winRate": 0.5, "profitLoss": -520.0783565447737, "averageWager": 334.5800740825457}, "Total": {"count": 1, "winRate": 0, "profitLoss": -67.39697756508289, "averageWager": 67.39697756508289}, "Spread": {"count": 1, "winRate": 0, "profitLoss": -105.77357738149826, "averageWager": 105.77357738149826}}, "performanceByWeek": {"Week 1": {"count": 6, "winRate": 0.3333333333333333, "profitLoss": -693.2489114913548, "totalWagered": 1511.4908512767643}}}, "games": []}, "6": {"weekInfo": {"currentWeek": 6, "totalWeeks": 18, "seasonYear": 2025, "weekStartDate": "2025-10-09T00:00:00", "weekEndDate": "2025-10-15T00:00:00"}, "recommendations": [], "performance": {"totalBets": 6, "totalWager": 1511.4908512767643, "winRate": 0.3333333333333333, "totalProfitLoss": -693.2489114913548, "averageBet": 251.91514187946072, "roi": -0.45865240329160034, "topPicksCount": 3, "topPicksWager": 1270.2251364260192, "topPicksProfitLoss": -576.8243231315766, "topPicksROI": -0.4541118787450261, "topPicksWinRate": 0.3333333333333333, "betTypeBreakdown": {"Moneyline": {"count": 4, "winRate": 0.5, "profitLoss": -520.0783565447737, "averageWager": 334.5800740825457}, "Total": {"count": 1, "winRate": 0, "profitLoss": -67.39697756508289, "averageWager": 67.39697756508289}, "Spread": {"count": 1, "winRate": 0, "profitLoss": -105.77357738149826, "averageWager": 105.77357738149826}}, "performanceByWeek": {"Week 1": {"count": 6, "winRate": 0.3333333333333333, "profitLoss": -693.2489114913548, "totalWagered": 1511.4908512767643}}}, "games": []}, "7": {"weekInfo": {"currentWeek": 7, "totalWeeks": 18, "seasonYear": 2025, "weekStartDate": "2025-10-16T00:00:00", "weekEndDate": "2025-10-22T00:00:00"}, "recommendations": [], "performance": {"totalBets": 6, "totalWager": 1511.4908512767643, "winRate": 0.3333333333333333, "totalProfitLoss": -693.2489114913548, "averageBet": 251.91514187946072, "roi": -0.45865240329160034, "topPicksCount": 3, "topPicksWager": 1270.2251364260192, "topPicksProfitLoss": -576.8243231315766, "topPicksROI": -0.4541118787450261, "topPicksWinRate": 0.3333333333333333, "betTypeBreakdown": {"Moneyline": {"count": 4, "winRate": 0.5, "profitLoss": -520.0783565447737, "averageWager": 334.5800740825457}, "Total": {"count": 1, "winRate": 0, "profitLoss": -67.39697756508289, "averageWager": 67.39697756508289}, "Spread": {"count": 1, "winRate": 0, "profitLoss": -105.77357738149826, "averageWager": 105.77357738149826}}, "performanceByWeek": {"Week 1": {"count": 6, "winRate": 0.3333333333333333, "profitLoss": -693.2489114913548, "totalWagered": 1511.4908512767643}}}, "games": []}, "8": {"weekInfo": {"currentWeek": 8, "totalWeeks": 18, "seasonYear": 2025, "weekStartDate": "2025-10-23T00:00:00", "weekEndDate": "2025-10-29T00:00:00"}, "recommendations": [], "performance": {"totalBets": 6, "totalWager": 1511.4908512767643, "winRate": 0.3333333333333333, "totalProfitLoss": -693.2489114913548, "averageBet": 251.91514187946072, "roi": -0.45865240329160034, "topPicksCount": 3, "topPicksWager": 1270.2251364260192, "topPicksProfitLoss": -576.8243231315766, "topPicksROI": -0.4541118787450261, "topPicksWinRate": 0.3333333333333333, "betTypeBreakdown": {"Moneyline": {"count": 4, "winRate": 0.5, "profitLoss": -520.0783565447737, "averageWager": 334.5800740825457}, "Total": {"count": 1, "winRate": 0, "profitLoss": -67.39697756508289, "averageWager": 67.39697756508289}, "Spread": {"count": 1, "winRate": 0, "profitLoss": -105.77357738149826, "averageWager": 105.77357738149826}}, "performanceByWeek": {"Week 1": {"count": 6, "winRate": 0.3333333333333333, "profitLoss": -693.2489114913548, "totalWagered": 1511.4908512767643}}}, "games": []}, "9": {"weekInfo": {"currentWeek": 9, "totalWeeks": 18, "seasonYear": 2025, "weekStartDate": "2025-10-30T00:00:00", "weekEndDate": "2025-11-05T00:00:00"}, "recommendations": [], "performance": {"totalBets": 6, "totalWager": 1511.4908512767643, "winRate": 0.3333333333333333, "totalProfitLoss": -693.2489114913548, "averageBet": 251.91514187946072, "roi": -0.45865240329160034, "topPicksCount": 3, "topPicksWager": 1270.2251364260192, "topPicksProfitLoss": -576.8243231315766, "topPicksROI": -0.4541118787450261, "topPicksWinRate": 0.3333333333333333, "betTypeBreakdown": {"Moneyline": {"count": 4, "winRate": 0.5, "profitLoss": -520.0783565447737, "averageWager": 334.5800740825457}, "Total": {"count": 1, "winRate": 0, "profitLoss": -67.39697756508289, "averageWager": 67.39697756508289}, "Spread": {"count": 1, "winRate": 0, "profitLoss": -105.77357738149826, "averageWager": 105.77357738149826}}, "performanceByWeek": {"Week 1": {"count": 6, "winRate": 0.3333333333333333, "profitLoss": -693.2489114913548, "totalWagered": 1511.4908512767643}}}, "games": []}, "10": {"weekInfo": {"currentWeek": 10, "totalWeeks": 18, "seasonYear": 2025, "weekStartDate": "2025-11-06T00:00:00", "weekEndDate": "2025-11-12T00:00:00"}, "recommendations": [], "performance": {"totalBets": 6, "totalWager": 1511.4908512767643, "winRate": 0.3333333333333333, "totalProfitLoss": -693.2489114913548, "averageBet": 251.91514187946072, "roi": -0.45865240329160034, "topPicksCount": 3, "topPicksWager": 1270.2251364260192, "topPicksProfitLoss": -576.8243231315766, "topPicksROI": -0.4541118787450261, "topPicksWinRate": 0.3333333333333333, "betTypeBreakdown": {"Moneyline": {"count": 4, "winRate": 0.5, "profitLoss": -520.0783565447737, "averageWager": 334.5800740825457}, "Total": {"count": 1, "winRate": 0, "profitLoss": -67.39697756508289, "averageWager": 67.39697756508289}, "Spread": {"count": 1, "winRate": 0, "profitLoss": -105.77357738149826, "averageWager": 105.77357738149826}}, "performanceByWeek": {"Week 1": {"count": 6, "winRate": 0.3333333333333333, "profitLoss": -693.2489114913548, "totalWagered": 1511.4908512767643}}}, "games": []}, "11": {"weekInfo": {"currentWeek": 11, "totalWeeks": 18, "seasonYear": 2025, "weekStartDate": "2025-11-13T00:00:00", "weekEndDate": "2025-11-19T00:00:00"}, "recommendations": [], "performance": {"totalBets": 6, "totalWager": 1511.4908512767643, "winRate": 0.3333333333333333, "totalProfitLoss": -693.2489114913548, "averageBet": 251.91514187946072, "roi": -0.45865240329160034, "topPicksCount": 3, "topPicksWager": 1270.2251364260192, "topPicksProfitLoss": -576.8243231315766, "topPicksROI": -0.4541118787450261, "topPicksWinRate": 0.3333333333333333, "betTypeBreakdown": {"Moneyline": {"count": 4, "winRate": 0.5, "profitLoss": -520.0783565447737, "averageWager": 334.5800740825457}, "Total": {"count": 1, "winRate": 0, "profitLoss": -67.39697756508289, "averageWager": 67.39697756508289}, "Spread": {"count": 1, "winRate": 0, "profitLoss": -105.77357738149826, "averageWager": 105.77357738149826}}, "performanceByWeek": {"Week 1": {"count": 6, "winRate": 0.3333333333333333, "profitLoss": -693.2489114913548, "totalWagered": 1511.4908512767643}}}, "games": []}, "12": {"weekInfo": {"currentWeek": 12, "totalWeeks": 18, "seasonYear": 2025, "weekStartDate": "2025-11-20T00:00:00", "weekEndDate": "2025-11-26T00:00:00"}, "recommendations": [], "performance": {"totalBets": 6, "totalWager": 1511.4908512767643, "winRate": 0.3333333333333333, "totalProfitLoss": -693.2489114913548, "averageBet": 251.91514187946072, "roi": -0.45865240329160034, "topPicksCount": 3, "topPicksWager": 1270.2251364260192, "topPicksProfitLoss": -576.8243231315766, "topPicksROI": -0.4541118787450261, "topPicksWinRate": 0.3333333333333333, "betTypeBreakdown": {"Moneyline": {"count": 4, "winRate": 0.5, "profitLoss": -520.0783565447737, "averageWager": 334.5800740825457}, "Total": {"count": 1, "winRate": 0, "profitLoss": -67.39697756508289, "averageWager": 67.39697756508289}, "Spread": {"count": 1, "winRate": 0, "profitLoss": -105.77357738149826, "averageWager": 105.77357738149826}}, "performanceByWeek": {"Week 1": {"count": 6, "winRate": 0.3333333333333333, "profitLoss": -693.2489114913548, "totalWagered": 1511.4908512767643}}}, "games": []}, "13": {"weekInfo": {"currentWeek": 13, "totalWeeks": 18, "seasonYear": 2025, "weekStartDate": "2025-11-27T00:00:00", "weekEndDate": "2025-12-03T00:00:00"}, "recommendations": [], "performance": {"totalBets": 6, "totalWager": 1511.4908512767643, "winRate": 0.3333333333333333, "totalProfitLoss": -693.2489114913548, "averageBet": 251.91514187946072, "roi": -0.45865240329160034, "topPicksCount": 3, "topPicksWager": 1270.2251364260192, "topPicksProfitLoss": -576.8243231315766, "topPicksROI": -0.4541118787450261, "topPicksWinRate": 0.3333333333333333, "betTypeBreakdown": {"Moneyline": {"count": 4, "winRate": 0.5, "profitLoss": -520.0783565447737, "averageWager": 334.5800740825457}, "Total": {"count": 1, "winRate": 0, "profitLoss": -67.39697756508289, "averageWager": 67.39697756508289}, "Spread": {"count": 1, "winRate": 0, "profitLoss": -105.77357738149826, "averageWager": 105.77357738149826}}, "performanceByWeek": {"Week 1": {"count": 6, "winRate": 0.3333333333333333, "profitLoss": -693.2489114913548, "totalWagered": 1511.4908512767643}}}, "games": []}, "14": {"weekInfo": {"currentWeek": 14, "totalWeeks": 18, "seasonYear": 2025, "weekStartDate": "2025-12-04T00:00:00", "weekEndDate": "2025-12-10T00:00:00"}, "recommendations": [], "performance": {"totalBets": 6, "totalWager": 1511.4908512767643, "winRate": 0.3333333333333333, "totalProfitLoss": -693.2489114913548, "averageBet": 251.91514187946072, "roi": -0.45865240329160034, "topPicksCount": 3, "topPicksWager": 1270.2251364260192, "topPicksProfitLoss": -576.8243231315766, "topPicksROI": -0.4541118787450261, "topPicksWinRate": 0.3333333333333333, "betTypeBreakdown": {"Moneyline": {"count": 4, "winRate": 0.5, "profitLoss": -520.0783565447737, "averageWager": 334.5800740825457}, "Total": {"count": 1, "winRate": 0, "profitLoss": -67.39697756508289, "averageWager": 67.39697756508289}, "Spread": {"count": 1, "winRate": 0, "profitLoss": -105.77357738149826, "averageWager": 105.77357738149826}}, "performanceByWeek": {"Week 1": {"count": 6, "winRate": 0.3333333333333333, "profitLoss": -693.2489114913548, "totalWagered": 1511.4908512767643}}}, "games": []}, "15": {"weekInfo": {"currentWeek": 15, "totalWeeks": 18, "seasonYear": 2025, "weekStartDate": "2025-12-11T00:00:00", "weekEndDate": "2025-12-17T00:00:00"}, "recommendations": [], "performance": {"totalBets": 6, "totalWager": 1511.4908512767643, "winRate": 0.3333333333333333, "totalProfitLoss": -693.2489114913548, "averageBet": 251.91514187946072, "roi": -0.45865240329160034, "topPicksCount": 3, "topPicksWager": 1270.2251364260192, "topPicksProfitLoss": -576.8243231315766, "topPicksROI": -0.4541118787450261, "topPicksWinRate": 0.3333333333333333, "betTypeBreakdown": {"Moneyline": {"count": 4, "winRate": 0.5, "profitLoss": -520.0783565447737, "averageWager": 334.5800740825457}, "Total": {"count": 1, "winRate": 0, "profitLoss": -67.39697756508289, "averageWager": 67.39697756508289}, "Spread": {"count": 1, "winRate": 0, "profitLoss": -105.77357738149826, "averageWager": 105.77357738149826}}, "performanceByWeek": {"Week 1": {"count": 6, "winRate": 0.3333333333333333, "profitLoss": -693.2489114913548, "totalWagered": 1511.4908512767643}}}, "games": []}, "16": {"weekInfo": {"currentWeek": 16, "totalWeeks": 18, "seasonYear": 2025, "weekStartDate": "2025-12-18T00:00:00", "weekEndDate": "2025-12-24T00:00:00"}, "recommendations": [], "performance": {"totalBets": 6, "totalWager": 1511.4908512767643, "winRate": 0.3333333333333333, "totalProfitLoss": -693.2489114913548, "averageBet": 251.91514187946072, "roi": -0.45865240329160034, "topPicksCount": 3, "topPicksWager": 1270.2251364260192, "topPicksProfitLoss": -576.8243231315766, "topPicksROI": -0.4541118787450261, "topPicksWinRate": 0.3333333333333333, "betTypeBreakdown": {"Moneyline": {"count": 4, "winRate": 0.5, "profitLoss": -520.0783565447737, "averageWager": 334.5800740825457}, "Total": {"count": 1, "winRate": 0, "profitLoss": -67.39697756508289, "averageWager": 67.39697756508289}, "Spread": {"count": 1, "winRate": 0, "profitLoss": -105.77357738149826, "averageWager": 105.77357738149826}}, "performanceByWeek": {"Week 1": {"count": 6, "winRate": 0.3333333333333333, "profitLoss": -693.2489114913548, "totalWagered": 1511.4908512767643}}}, "games": []}, "17": {"weekInfo": {"currentWeek": 17, "totalWeeks": 18, "seasonYear": 2025, "weekStartDate": "2025-12-25T00:00:00", "weekEndDate": "2025-12-31T00:00:00"}, "recommendations": [], "performance": {"totalBets": 6, "totalWager": 1511.4908512767643, "winRate": 0.3333333333333333, "totalProfitLoss": -693.2489114913548, "averageBet": 251.91514187946072, "roi": -0.45865240329160034, "topPicksCount": 3, "topPicksWager": 1270.2251364260192, "topPicksProfitLoss": -576.8243231315766, "topPicksROI": -0.4541118787450261, "topPicksWinRate": 0.3333333333333333, "betTypeBreakdown": {"Moneyline": {"count": 4, "winRate": 0.5, "profitLoss": -520.0783565447737, "averageWager": 334.5800740825457}, "Total": {"count": 1, "winRate": 0, "profitLoss": -67.39697756508289, "averageWager": 67.39697756508289}, "Spread": {"count": 1, "winRate": 0, "profitLoss": -105.77357738149826, "averageWager": 105.77357738149826}}, "performanceByWeek": {"Week 1": {"count": 6, "winRate": 0.3333333333333333, "profitLoss": -693.2489114913548, "totalWagered": 1511.4908512767643}}}, "games": []}, "18": {"weekInfo": {"currentWeek": 18, "totalWeeks": 18, "seasonYear": 2025, "weekStartDate": "2026-01-01T00:00:00", "weekEndDate": "2026-01-07T00:00:00"}, "recommendations": [], "performance": {"totalBets": 6, "totalWager": 1511.4908512767643, "winRate": 0.3333333333333333, "totalProfitLoss": -693.2489114913548, "averageBet": 251.91514187946072, "roi": -0.45865240329160034, "topPicksCount": 3, "topPicksWager": 1270.2251364260192, "topPicksProfitLoss": -576.8243231315766, "topPicksROI": -0.4541118787450261, "topPicksWinRate": 0.3333333333333333, "betTypeBreakdown": {"Moneyline": {"count": 4, "winRate": 0.5, "profitLoss": -520.0783565447737, "averageWager": 334.5800740825457}, "Total": {"count": 1, "winRate": 0, "profitLoss": -67.39697756508289, "averageWager": 67.39697756508289}, "Spread": {"count": 1, "winRate": 0, "profitLoss": -105.77357738149826, "averageWager": 105.77357738149826}}, "performanceByWeek": {"Week 1": {"count": 6, "winRate": 0.3333333333333333, "profitLoss": -693.2489114913548, "totalWagered": 1511.4908512767643}}}, "games": []}}
+        };
+        
+        // Override API calls to use static data
+        window.fetch = function(url) {
+            if (url.includes('/api/nfl-week/')) {
+                const week = url.match(/\/(\d+)$/)?.[1] || staticData.currentWeek;
+                return Promise.resolve({
+                    json: () => Promise.resolve(staticData.weeks[week]?.weekInfo || {})
+                });
+            }
+            if (url.includes('/api/recommendations/week/')) {
+                const week = url.match(/\/(\d+)$/)?.[1] || staticData.currentWeek;
+                return Promise.resolve({
+                    json: () => Promise.resolve(staticData.weeks[week]?.recommendations || [])
+                });
+            }
+            if (url.includes('/api/analytics/performance')) {
+                return Promise.resolve({
+                    json: () => Promise.resolve(staticData.weeks[staticData.currentWeek]?.performance || {})
+                });
+            }
+            if (url.includes('/api/games/week/')) {
+                const week = url.match(/\/(\d+)$/)?.[1] || staticData.currentWeek;
+                return Promise.resolve({
+                    json: () => Promise.resolve(staticData.weeks[week]?.games || [])
+                });
+            }
+            return Promise.reject(new Error('API not available in static mode'));
+        };
+        
+        // Current week tracking
+        let currentWeek = staticData.currentWeek;
+        
+        // Override displayRecommendations to work with static data
+        window.displayRecommendations = function(recommendations) {
+            const container = document.getElementById('recommendations-container');
+            if (!container) return;
+            
+            if (!recommendations || recommendations.length === 0) {
+                container.innerHTML = `
+                    <div class="no-recommendations">
+                        <h3>No recommendations available</h3>
+                        <p>Check back later for betting recommendations.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Generate recommendations HTML (simplified version)
+            let html = '';
+            recommendations.forEach(rec => {
+                const isTopPick = rec.isTopPick || false;
+                const confidence = rec.confidence || 0;
+                const reasoning = rec.reasoning || 'No reasoning provided';
+                const gameInfo = rec.gameInfo || 'Unknown Game';
+                const betDisplay = formatBetDisplay(rec);
+                const sportsbook = rec.sportsbook || 'Unknown';
+                const gameTime = formatGameTime(rec.gameTime || '');
+                const wagerAmount = rec.recommendedWager || 0;
+                const oddsValue = rec.oddsAtTimeOfBet || 0;
+                const expectedValue = rec.expectedValue || 0;
+                const kellyPercentage = rec.kellyPercentage || 0;
+                
+                const confidenceStr = `${confidence.toFixed(1)}%`;
+                const expectedValueStr = `${expectedValue.toFixed(3)}`;
+                const kellyStr = `${kellyPercentage.toFixed(1)}%`;
+                const wagerStr = formatCurrency(wagerAmount);
+                const sportsbookClass = getSportsbookClass(sportsbook);
+                const gameDetails = `${gameInfo} • ${gameTime}`;
+                const topPickClass = isTopPick ? 'top-pick' : '';
+                const topPickBadge = isTopPick ? '<div class="top-pick-badge">TOP PICK</div>' : '';
+                
+                html += `
+                    <div class="recommendation-card ${topPickClass}">
+                        ${topPickBadge}
+                        <div class="card-header">
+                            <div class="bet-info">
+                                <div class="bet-text">
+                                    <h3>${betDisplay}<span class="sportsbook-badge ${sportsbookClass}">${sportsbook}</span></h3>
+                                    <div class="bet-details">${gameDetails}</div>
+                                </div>
+                            </div>
+                            <div class="card-badges">
+                                <div class="outcome-badge pending">PENDING</div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="metrics-grid">
+                                <div class="metric">
+                                    <div class="metric-label">Expected Value</div>
+                                    <div class="metric-value expected-value">${expectedValueStr}</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">Confidence</div>
+                                    <div class="metric-value confidence">${confidenceStr}</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">Kelly Criterion</div>
+                                    <div class="metric-value kelly">${kellyStr}</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">BET</div>
+                                    <div class="metric-value wager">${wagerStr}</div>
+                                </div>
+                            </div>
+                            <div class="reasoning">
+                                <div class="reasoning-label">Reasoning:</div>
+                                <div class="reasoning-text">${reasoning}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        };
+        
+        // Override updateWeekNavigation to work with static data
+        window.updateWeekNavigation = function() {
+            const weekTitle = document.getElementById('weekTitle');
+            const weekDates = document.getElementById('weekDates');
+            const prevBtn = document.getElementById('prevWeekBtn');
+            const nextBtn = document.getElementById('nextWeekBtn');
+            
+            if (weekTitle) {
+                weekTitle.textContent = `Week ${currentWeek} of ${staticData.totalWeeks}`;
+            }
+            
+            if (weekDates && staticData.weeks[currentWeek]) {
+                const weekInfo = staticData.weeks[currentWeek].weekInfo;
+                const startDate = new Date(weekInfo.weekStartDate);
+                const endDate = new Date(weekInfo.weekEndDate);
+                const startStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                const endStr = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                weekDates.textContent = `${startStr} - ${endStr}`;
+            }
+            
+            if (prevBtn) {
+                prevBtn.style.display = currentWeek > 1 ? 'block' : 'none';
+            }
+            
+            if (nextBtn) {
+                nextBtn.style.display = currentWeek < staticData.totalWeeks ? 'block' : 'none';
+            }
+        };
+        
+        // Override updateWeekDates to work with static data
+        window.updateWeekDates = function() {
+            // This is handled by updateWeekNavigation
+        };
+        
+        // Override changeWeek to work with static data
+        window.changeWeek = function(direction) {
+            const newWeek = currentWeek + direction;
+            if (newWeek < 1 || newWeek > staticData.totalWeeks) return;
+            
+            currentWeek = newWeek;
+            
+            // Update week display
+            updateWeekNavigation();
+            
+            // Load week data
+            const weekData = staticData.weeks[currentWeek];
+            if (weekData) {
+                displayRecommendations(weekData.recommendations);
+                // Update performance data if needed
+                updatePerformanceDisplay(weekData.performance);
+            }
+        };
+        
+        // Helper functions for formatting
+        function formatCurrency(amount) {
+            return `$${amount.toFixed(2)}`;
+        }
+        
+        function formatGameTime(timeStr) {
+            if (!timeStr) return '';
+            const date = new Date(timeStr);
+            return date.toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+        
+        function formatBetDisplay(rec) {
+            const betType = rec.betType;
+            const side = rec.side;
+            const line = rec.line;
+            
+            if (betType === 0) {
+                // Moneyline
+                return side === 0 ? 'Moneyline' : 'Moneyline';
+            } else if (betType === 1) {
+                // Spread
+                const lineStr = line ? `${line > 0 ? '+' : ''}${line}` : '';
+                return `Spread ${lineStr}`;
+            } else if (betType === 2) {
+                // Total
+                const overUnder = side === 0 ? 'Over' : 'Under';
+                return `${overUnder} ${line}`;
+            }
+            return 'Unknown Bet';
+        }
+        
+        function getSportsbookClass(sportsbook) {
+            const classes = {
+                'DraftKings': 'draftkings',
+                'FanDuel': 'fanduel',
+                'BetMGM': 'betmgm',
+                'Caesars': 'caesars',
+                'BetRivers': 'betrivers',
+                'BetOnline.ag': 'betonline',
+                'LowVig.ag': 'lowvig',
+                'Bovada': 'bovada'
+            };
+            return classes[sportsbook] || 'default';
+        }
+        
+        function updatePerformanceDisplay(performance) {
+            // Update performance metrics if needed
+            // This is a simplified version - you can expand as needed
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeWeekNavigation();
+        });
+    </script>
+</body>
+</html>
